@@ -3,9 +3,10 @@
  * Enforces:
  * 1. Precision Compounding & Fee Subtraction (Net Rate = Return % - Expense Ratio %).
  * 2. Deposit Timing Precision (End of Period vs. Beginning of Period).
- * 3. Out-of-pocket Principal tracking (Initial Deposit + Total Cash Contributions over time).
- * 4. Present Purchasing Power Discounting: Real Present Value = Nominal Future Value / ((1 + Inflation Rate)^Years).
- * 5. Strict Balance Identity: Invested Principal + Compound Interest / Earnings = Total Nominal Future Value.
+ * 3. Out-of-pocket Principal tracking (Initial Deposit + Total Monthly Contributions + Total Annual Contributions).
+ * 4. Distinct Monthly vs. Annual Contribution Compounding Logic.
+ * 5. Present Purchasing Power Discounting: Real Present Value = Nominal Future Value / ((1 + Inflation Rate)^Years).
+ * 6. Strict Balance Identity: Invested Principal + Compound Interest / Earnings = Total Nominal Future Value.
  */
 
 export interface MathContext {
@@ -64,7 +65,7 @@ export function calculateTotalInvestedPrincipal(
   initialPrincipal: number,
   monthlyContribution = 0,
   annualContribution = 0,
-  years: number
+  years = 0
 ): number {
   const init = Math.max(0, initialPrincipal);
   const mContrib = Math.max(0, monthlyContribution);
@@ -117,27 +118,30 @@ export function calculateInflationAdjustedValue(
 }
 
 /**
- * 3. COMPOUNDING, FEE SUBTRACTION & TIMING
+ * 3. COMPOUNDING, FEE SUBTRACTION & TIMING WITH SEPARATE MONTHLY AND ANNUAL CONTRIBUTIONS
  * Net Rate = Return Rate % - Expense Ratio %
  * Supports End of Period (Annuity Immediate) vs. Beginning of Period (Annuity Due)
  */
 export function calculateNominalFutureValue(
   initialPrincipal: number,
-  monthlyContribution: number,
-  annualReturnRatePct: number,
-  years: number,
+  monthlyContribution = 0,
+  annualContribution = 0,
+  annualReturnRatePct = 0,
+  years = 0,
   expenseRatioPct = 0,
   timing: 'end' | 'beginning' = 'end'
 ): {
   netReturnRatePct: number;
   fvInitial: number;
-  fvDeposits: number;
+  fvMonthlyDeposits: number;
+  fvAnnualDeposits: number;
   totalNominalFV: number;
   totalInvestedPrincipal: number;
   totalCompoundInterest: number;
 } {
   const p = Math.max(0, initialPrincipal);
   const m = Math.max(0, monthlyContribution);
+  const a = Math.max(0, annualContribution);
   const grossRate = Math.max(0, annualReturnRatePct);
   const feeRate = Math.max(0, expenseRatioPct);
   const netReturnRatePct = Math.max(0, grossRate - feeRate);
@@ -148,27 +152,47 @@ export function calculateNominalFutureValue(
   const totalMonths = Math.round(t * 12);
 
   let fvInitial = p;
-  let fvDeposits = 0;
+  let fvMonthlyDeposits = 0;
+  let fvAnnualDeposits = 0;
 
-  if (totalMonths > 0) {
+  if (t > 0) {
+    // 1. Initial Principal Compounding
     if (monthlyRate > 0) {
       fvInitial = p * Math.pow(1 + monthlyRate, totalMonths);
-      const annuityFactor = (Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate;
-      fvDeposits = m * annuityFactor * (timing === 'beginning' ? (1 + monthlyRate) : 1);
     } else {
       fvInitial = p;
-      fvDeposits = m * totalMonths;
+    }
+
+    // 2. Monthly Contribution Compounding
+    if (totalMonths > 0 && m > 0) {
+      if (monthlyRate > 0) {
+        const monthlyAnnuityFactor = (Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate;
+        fvMonthlyDeposits = m * monthlyAnnuityFactor * (timing === 'beginning' ? (1 + monthlyRate) : 1);
+      } else {
+        fvMonthlyDeposits = m * totalMonths;
+      }
+    }
+
+    // 3. Annual Contribution Compounding
+    if (a > 0) {
+      if (rNet > 0) {
+        const annualAnnuityFactor = (Math.pow(1 + rNet, t) - 1) / rNet;
+        fvAnnualDeposits = a * annualAnnuityFactor * (timing === 'beginning' ? (1 + rNet) : 1);
+      } else {
+        fvAnnualDeposits = a * t;
+      }
     }
   }
 
-  const totalNominalFV = fvInitial + fvDeposits;
-  const totalInvestedPrincipal = p + (m * totalMonths);
+  const totalNominalFV = fvInitial + fvMonthlyDeposits + fvAnnualDeposits;
+  const totalInvestedPrincipal = calculateTotalInvestedPrincipal(p, m, a, t);
   const totalCompoundInterest = Math.max(0, totalNominalFV - totalInvestedPrincipal);
 
   return {
     netReturnRatePct,
     fvInitial,
-    fvDeposits,
+    fvMonthlyDeposits,
+    fvAnnualDeposits,
     totalNominalFV,
     totalInvestedPrincipal,
     totalCompoundInterest,
@@ -180,11 +204,12 @@ export function calculateNominalFutureValue(
  */
 export function calculateAnnuityPayoutAndGrowth(
   startingBalance: number,
-  monthlyContribution: number,
-  annualReturnPct: number,
-  expenseRatioPct: number,
-  years: number,
-  inflationPct: number,
+  monthlyContribution = 0,
+  annualContribution = 0,
+  annualReturnPct = 0,
+  expenseRatioPct = 0,
+  years = 0,
+  inflationPct = 0,
   timing: 'end' | 'beginning' = 'end'
 ): {
   netReturnRatePct: number;
@@ -196,6 +221,7 @@ export function calculateAnnuityPayoutAndGrowth(
   const res = calculateNominalFutureValue(
     startingBalance,
     monthlyContribution,
+    annualContribution,
     annualReturnPct,
     years,
     expenseRatioPct,
@@ -370,9 +396,10 @@ export function generateAmortizationSchedule(
  */
 export function generateInvestmentSchedule(
   initialPrincipal: number,
-  monthlyContribution: number,
-  annualReturnRatePct: number,
-  years: number,
+  monthlyContribution = 0,
+  annualContribution = 0,
+  annualReturnRatePct = 0,
+  years = 0,
   annualInflationRatePct = 0,
   expenseRatioPct = 0,
   timing: 'end' | 'beginning' = 'end'
@@ -393,6 +420,7 @@ export function generateInvestmentSchedule(
 } {
   const p = Math.max(0, initialPrincipal);
   const m = Math.max(0, monthlyContribution);
+  const a = Math.max(0, annualContribution);
   const grossRate = Math.max(0, annualReturnRatePct);
   const feeRate = Math.max(0, expenseRatioPct);
   const netReturnRatePct = Math.max(0, grossRate - feeRate);
@@ -407,8 +435,13 @@ export function generateInvestmentSchedule(
 
   for (let yr = 1; yr <= totalYears; yr++) {
     const startBal = currentBalance;
-    const yearCashInvested = m * 12;
 
+    // Inject Annual Contribution at beginning of year if timing is 'beginning'
+    if (timing === 'beginning' && a > 0) {
+      currentBalance += a;
+    }
+
+    // Monthly compounding loop
     for (let sub = 0; sub < 12; sub++) {
       if (timing === 'beginning') {
         currentBalance = (currentBalance + m) * (1 + monthlyRate);
@@ -417,6 +450,12 @@ export function generateInvestmentSchedule(
       }
     }
 
+    // Inject Annual Contribution at end of year if timing is 'end'
+    if (timing === 'end' && a > 0) {
+      currentBalance += a;
+    }
+
+    const yearCashInvested = (m * 12) + a;
     const yearGrowth = Math.max(0, currentBalance - startBal - yearCashInvested);
     cumInvested += yearCashInvested;
 

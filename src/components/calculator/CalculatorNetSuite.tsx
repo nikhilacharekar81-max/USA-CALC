@@ -592,6 +592,8 @@ export const CalculatorNetSuite: React.FC<CalculatorNetSuiteProps> = ({
   const [invCurrentBalance, setInvCurrentBalance] = useState<number>(35000);
   const [invAnnualSalary, setInvAnnualSalary] = useState<number>(90000);
   const [invContribPct, setInvContribPct] = useState<number>(9); // 9% of salary
+  const [invAnnualContrib, setInvAnnualContrib] = useState<number>(0); // Direct annual contribution ($)
+  const [invMonthlyContrib, setInvMonthlyContrib] = useState<number>(0); // Direct monthly contribution ($)
   const [invMatchPct, setInvMatchPct] = useState<number>(50); // 50% match
   const [invMatchCap, setInvMatchCap] = useState<number>(6); // up to 6% salary
   const [invYears, setInvYears] = useState<number>(25); // years
@@ -601,8 +603,9 @@ export const CalculatorNetSuite: React.FC<CalculatorNetSuiteProps> = ({
   const invCalculations = useMemo(() => {
     const curBal = Math.max(0, invCurrentBalance);
     const salary = Math.max(0, invAnnualSalary);
-    const userContribAnnual = salary * (Math.max(0, invContribPct) / 100);
-    const userContribMonthly = userContribAnnual / 12;
+    const salaryContribAnnual = salary * (Math.max(0, invContribPct) / 100);
+    const userContribAnnual = salaryContribAnnual + Math.max(0, invAnnualContrib);
+    const userContribMonthly = Math.max(0, invMonthlyContrib) + (userContribAnnual / 12);
 
     // Employer match: Annual Match = MIN(Contrib, Salary * Match Cap %) * Match %
     const matchedSalaryPct = Math.min(Math.max(0, invContribPct), Math.max(0, invMatchCap));
@@ -628,7 +631,7 @@ export const CalculatorNetSuite: React.FC<CalculatorNetSuiteProps> = ({
         runningNominalBalance = (runningNominalBalance + userContribMonthly + employerMatchMonthly) * (1 + monthlyRate);
       }
 
-      cumUserInvested += userContribAnnual;
+      cumUserInvested += (userContribMonthly * 12);
       cumEmployerMatch += employerMatchAnnual;
 
       const discountFactor = Math.pow(1 + inflationRate, yr);
@@ -662,6 +665,8 @@ export const CalculatorNetSuite: React.FC<CalculatorNetSuiteProps> = ({
     invCurrentBalance,
     invAnnualSalary,
     invContribPct,
+    invAnnualContrib,
+    invMonthlyContrib,
     invMatchPct,
     invMatchCap,
     invYears,

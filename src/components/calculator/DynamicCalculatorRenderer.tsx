@@ -173,12 +173,14 @@ export const DynamicCalculatorRenderer: React.FC<DynamicCalculatorRendererProps>
 
     if (isInvestment) {
       const initPrincipal = formValues['startingAmount'] || formValues['initialPrincipal'] || formValues['currentSavings'] || 10000;
-      const monthlyContrib = formValues['monthlyContribution'] || (formValues['annualContribution'] ? formValues['annualContribution'] / 12 : 500);
+      const monthlyContrib = formValues['monthlyContribution'] || 0;
+      const annualContrib = formValues['annualContribution'] || (formValues['monthlyContribution'] ? 0 : 6000);
       const returnRate = formValues['growthRate'] || formValues['annualReturn'] || formValues['preRetireReturn'] || 7.5;
       const years = formValues['years'] || formValues['investmentYears'] || (formValues['retireAge'] && formValues['currentAge'] ? formValues['retireAge'] - formValues['currentAge'] : 15);
       const inflation = formValues['inflationRate'] || formValues['annualInflation'] || 0;
+      const expenseRatio = formValues['expenseRatio'] || 0;
 
-      const inv = generateInvestmentSchedule(initPrincipal, monthlyContrib, returnRate, years, inflation);
+      const inv = generateInvestmentSchedule(initPrincipal, monthlyContrib, annualContrib, returnRate, years, inflation, expenseRatio);
 
       // Map to standard schedule entries
       const mappedAnnual = inv.annualSchedule.map((a, i) => ({
