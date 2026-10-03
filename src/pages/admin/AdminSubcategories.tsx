@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.ts';
 import { Subcategory, Category } from '../../types/schema.ts';
-import { Plus, Edit2, Trash2, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, AlertCircle } from 'lucide-react';
 
 export const AdminSubcategories: React.FC = () => {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingSub, setEditingSub] = useState<Partial<Subcategory> | null>(null);
   const [statusMsg, setStatusMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string; force: boolean; message?: string } | null>(null);
 
   const loadData = async () => {
     try {
@@ -33,18 +35,13 @@ export const AdminSubcategories: React.FC = () => {
       loadData();
       setTimeout(() => setStatusMsg(''), 3000);
     } catch (err: any) {
-      alert(err.message || 'Error saving subcategory');
+      setErrorMsg(err.message || 'Error saving subcategory');
+      setTimeout(() => setErrorMsg(''), 5000);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this subcategory?')) return;
-    try {
-      await api.deleteSubcategory(id);
-      loadData();
-    } catch (err: any) {
-      alert(err.message || 'Error deleting subcategory');
-    }
+  const initiateDelete = (id: string, name: string) => {
+    setDeleteConfirm({ id, name, force: false });
   };
 
   return (
@@ -75,6 +72,13 @@ export const AdminSubcategories: React.FC = () => {
         <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2">
           <Check className="w-4 h-4 text-emerald-600" />
           <span>{statusMsg}</span>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-semibold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-600" />
+          <span>{errorMsg}</span>
         </div>
       )}
 
@@ -182,7 +186,7 @@ export const AdminSubcategories: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(s.id)}
+                        onClick={() => initiateDelete(s.id, s.name)}
                         className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -195,6 +199,72 @@ export const AdminSubcategories: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Custom State-Driven Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-rose-50 text-rose-600 rounded-xl shrink-0">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-black text-slate-900">
+                  {deleteConfirm.message ? 'Force Delete Subcategory & All Contents?' : 'Delete Subcategory?'}
+                </h3>
+                <div className="text-xs text-slate-500 leading-relaxed">
+                  {deleteConfirm.message ? (
+                    <span className="text-rose-700 font-semibold">{deleteConfirm.message}</span>
+                  ) : (
+                    <>Are you sure you want to delete the subcategory <strong>{deleteConfirm.name}</strong>?</>
+                  )}
+                </div>
+                {deleteConfirm.message && (
+                  <p className="text-[11px] text-slate-500 leading-relaxed mt-2 bg-rose-50 p-2.5 rounded-lg border border-rose-100">
+                    ⚠️ Warning: This will cascade delete all calculators in this subcategory. This action is permanent and cannot be undone.
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(null)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await api.deleteSubcategory(deleteConfirm.id, deleteConfirm.force);
+                    setDeleteConfirm(null);
+                    setStatusMsg(deleteConfirm.force ? 'Subcategory and all calculators deleted successfully!' : 'Subcategory deleted successfully!');
+                    setTimeout(() => setStatusMsg(''), 3000);
+                    loadData();
+                  } catch (err: any) {
+                    if (err.message && err.message.includes('contains')) {
+                      setDeleteConfirm({
+                        ...deleteConfirm,
+                        force: true,
+                        message: err.message
+                      });
+                    } else {
+                      setErrorMsg(err.message || 'Error deleting subcategory');
+                      setDeleteConfirm(null);
+                      setTimeout(() => setErrorMsg(''), 5000);
+                    }
+                  }
+                }}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors"
+              >
+                {deleteConfirm.message ? 'Force Delete & Cascade' : 'Yes, Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

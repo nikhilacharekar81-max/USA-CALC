@@ -143,8 +143,9 @@ export const api = {
     return handleResponse(res);
   },
 
-  deleteCategory: async (id: string): Promise<{ success: boolean }> => {
-    const res = await fetch(`/api/admin/categories/${id}`, {
+  deleteCategory: async (id: string, force = false): Promise<{ success: boolean }> => {
+    const url = `/api/admin/categories/${id}${force ? '?force=true' : ''}`;
+    const res = await fetch(url, {
       method: 'DELETE',
       headers: { ...authHeader() },
     });
@@ -167,8 +168,9 @@ export const api = {
     return handleResponse(res);
   },
 
-  deleteSubcategory: async (id: string): Promise<{ success: boolean }> => {
-    const res = await fetch(`/api/admin/subcategories/${id}`, {
+  deleteSubcategory: async (id: string, force = false): Promise<{ success: boolean }> => {
+    const url = `/api/admin/subcategories/${id}${force ? '?force=true' : ''}`;
+    const res = await fetch(url, {
       method: 'DELETE',
       headers: { ...authHeader() },
     });

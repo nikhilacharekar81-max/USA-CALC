@@ -28,7 +28,7 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            {category.name} Calculators
+            {category.name.endsWith('Calculators') ? category.name : `${category.name} Calculators`}
           </h1>
           <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 self-start sm:self-auto">
             {calculators.length} Total Calculators

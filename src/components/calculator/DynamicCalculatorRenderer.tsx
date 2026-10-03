@@ -168,43 +168,141 @@ export const DynamicCalculatorRenderer: React.FC<DynamicCalculatorRendererProps>
       const termYears = formValues['loanTerm'] || formValues['loanTermYears'] || (formValues['loanTermMonths'] ? formValues['loanTermMonths'] / 12 : 5);
       const extraMonthly = formValues['extraPayment'] || 0;
 
-      return generateAmortizationSchedule(principal, rate, termYears, extraMonthly);
+      const res = generateAmortizationSchedule({
+        loanAmount: principal,
+        annualInterestRatePct: rate,
+        termInMonths: Math.round(termYears * 12),
+        extraPayments: {
+          monthly: extraMonthly,
+        },
+        paymentRoundingCents: true,
+      });
+
+      let interestSum = 0;
+      const mappedMonthly = res.schedule.map((row) => {
+        interestSum += row.interest;
+        return {
+          period: row.period,
+          year: Math.ceil(row.period / 12),
+          month: ((row.period - 1) % 12) + 1,
+          dateStr: row.date ? row.date : `Month ${row.period}`,
+          beginningBalance: row.beginningBalance,
+          payment: row.totalPayment,
+          principalPaid: row.totalPrincipal,
+          interestPaid: row.interest,
+          extraPayment: row.extraPayment,
+          endingBalance: row.endingBalance,
+          totalInterestPaidToDate: interestSum,
+        };
+      });
+
+      const mappedAnnual = res.annualSummary.map((row, idx) => ({
+        period: idx + 1,
+        year: row.year,
+        month: 12,
+        dateStr: `Year ${row.year}`,
+        beginningBalance: row.beginningBalance,
+        payment: row.totalPayments,
+        principalPaid: row.principalPaid,
+        interestPaid: row.interestPaid,
+        extraPayment: row.extraPayments,
+        endingBalance: row.endingBalance,
+        totalInterestPaidToDate: res.annualSummary
+          .slice(0, idx + 1)
+          .reduce((sum, r) => sum + r.interestPaid, 0),
+      }));
+
+      return {
+        monthlySchedule: mappedMonthly,
+        annualSchedule: mappedAnnual,
+        payoffMonths: res.totalMonthsActual,
+        totalPrincipalPaid: res.totalPrincipal,
+        totalInterestPaid: res.totalInterest,
+        totalExtraPaid: res.totalExtraPayments,
+        totalPayments: res.totalPayments,
+      };
     }
 
     if (isInvestment) {
       const initPrincipal = formValues['startingAmount'] || formValues['initialPrincipal'] || formValues['currentSavings'] || 10000;
       const monthlyContrib = formValues['monthlyContribution'] || 0;
-      const annualContrib = formValues['annualContribution'] || (formValues['monthlyContribution'] ? 0 : 6000);
       const returnRate = formValues['growthRate'] || formValues['annualReturn'] || formValues['preRetireReturn'] || 7.5;
       const years = formValues['years'] || formValues['investmentYears'] || (formValues['retireAge'] && formValues['currentAge'] ? formValues['retireAge'] - formValues['currentAge'] : 15);
-      const inflation = formValues['inflationRate'] || formValues['annualInflation'] || 0;
-      const expenseRatio = formValues['expenseRatio'] || 0;
 
-      const inv = generateInvestmentSchedule(initPrincipal, monthlyContrib, annualContrib, returnRate, years, inflation, expenseRatio);
+      const inv = generateInvestmentSchedule({
+        initialInvestment: initPrincipal,
+        periodicContribution: monthlyContrib,
+        annualRatePct: returnRate,
+        years,
+        contributionFrequency: "monthly",
+      });
 
-      // Map to standard schedule entries
-      const mappedAnnual = inv.annualSchedule.map((a, i) => ({
-        period: a.year,
-        year: a.year,
-        month: 12,
-        dateStr: `Year ${a.year}`,
-        beginningBalance: a.startingBalance,
-        payment: a.contribution,
-        principalPaid: a.contribution,
-        interestPaid: a.growth,
-        extraPayment: 0,
-        endingBalance: a.endingBalance,
-        totalInterestPaidToDate: a.growth,
-      }));
+      // Group monthly investment schedule into annual steps
+      const annualScheduleList: any[] = [];
+      let currentYear = 1;
+      let yrBegBalance = initPrincipal;
+      let yrContrib = 0;
+      let yrInterest = 0;
+      let rollingContributed = initPrincipal;
+
+      inv.forEach((row) => {
+        yrContrib += row.contribution;
+        yrInterest += row.interest;
+        rollingContributed += row.contribution;
+
+        // At end of loan year (every 12 months)
+        if (row.period % 12 === 0 || row.period === inv.length) {
+          annualScheduleList.push({
+            period: currentYear,
+            year: currentYear,
+            month: 12,
+            dateStr: `Year ${currentYear}`,
+            beginningBalance: yrBegBalance,
+            payment: yrContrib,
+            principalPaid: yrContrib,
+            interestPaid: yrInterest,
+            extraPayment: 0,
+            endingBalance: row.balance,
+            totalInterestPaidToDate: row.balance - rollingContributed,
+          });
+          currentYear++;
+          yrBegBalance = row.balance;
+          yrContrib = 0;
+          yrInterest = 0;
+        }
+      });
+
+      // Monthly schedule maps directly
+      let monthlyInterestToDate = 0;
+      let monthlyContributed = initPrincipal;
+      const mappedMonthly = inv.map((row) => {
+        monthlyInterestToDate += row.interest;
+        monthlyContributed += row.contribution;
+        return {
+          period: row.period,
+          year: Math.ceil(row.period / 12),
+          month: ((row.period - 1) % 12) + 1,
+          dateStr: `Month ${row.period}`,
+          beginningBalance: row.balance - row.interest - row.contribution,
+          payment: row.contribution,
+          principalPaid: row.contribution,
+          interestPaid: row.interest,
+          extraPayment: 0,
+          endingBalance: row.balance,
+          totalInterestPaidToDate: monthlyInterestToDate,
+        };
+      });
+
+      const totalPayments = inv.length > 0 ? inv[inv.length - 1].balance : initPrincipal;
 
       return {
-        annualSchedule: mappedAnnual,
-        monthlySchedule: mappedAnnual,
-        payoffMonths: mappedAnnual.length * 12,
-        totalPrincipalPaid: inv.totalContributed,
-        totalInterestPaid: inv.totalGrowth,
+        annualSchedule: annualScheduleList,
+        monthlySchedule: mappedMonthly,
+        payoffMonths: inv.length,
+        totalPrincipalPaid: monthlyContributed,
+        totalInterestPaid: monthlyInterestToDate,
         totalExtraPaid: 0,
-        totalPayments: inv.finalBalance,
+        totalPayments,
       };
     }
 

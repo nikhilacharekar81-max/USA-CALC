@@ -76,14 +76,20 @@ export const InputsModule: React.FC<InputsModuleProps> = ({
     return false;
   };
 
-  let primaryFields = fields.filter((f, idx) => !isAdvancedField(f, idx));
-  let advancedFields = fields.filter((f, idx) => isAdvancedField(f, idx));
+  const visibleFields = fields.filter((field) => {
+    if (!field.visibleWhen) return true;
+    const parentVal = formValues[field.visibleWhen.fieldId];
+    return parentVal === field.visibleWhen.equalsValue;
+  });
+
+  let primaryFields = visibleFields.filter((f, idx) => !isAdvancedField(f, idx));
+  let advancedFields = visibleFields.filter((f, idx) => isAdvancedField(f, idx));
 
   // Ensure there are always at least 2 primary fields visible if total fields >= 2
-  if (primaryFields.length < 2 && fields.length >= 2) {
-    const splitPoint = Math.min(3, fields.length);
-    primaryFields = fields.slice(0, splitPoint);
-    advancedFields = fields.slice(splitPoint);
+  if (primaryFields.length < 2 && visibleFields.length >= 2) {
+    const splitPoint = Math.min(3, visibleFields.length);
+    primaryFields = visibleFields.slice(0, splitPoint);
+    advancedFields = visibleFields.slice(splitPoint);
   }
 
   const renderSingleField = (field: CalculatorField) => {
@@ -253,7 +259,7 @@ export const InputsModule: React.FC<InputsModuleProps> = ({
 
       {/* Primary Parameters Grid */}
       <div className={`grid gap-5 ${isTwoColumn ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
-        {(primaryFields.length > 0 ? primaryFields : fields).map(renderSingleField)}
+        {(primaryFields.length > 0 ? primaryFields : visibleFields).map(renderSingleField)}
       </div>
 
       {/* Advanced Options Collapsible Accordion (Calculator.net style) */}

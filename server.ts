@@ -349,11 +349,12 @@ async function startServer() {
   // AUTH API
   // ==========================================
   app.post('/api/auth/login', (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { username, password, passwordHash } = req.body;
     const db = readDb();
+    const providedPassword = password || passwordHash;
     if (
       username === db.settings.adminUsername &&
-      password === db.settings.adminPasswordHash
+      providedPassword === db.settings.adminPasswordHash
     ) {
       const token = `adm_token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       activeSessions.add(token);

@@ -22,6 +22,10 @@ export interface CalculatorField {
   helpText?: string;
   required?: boolean;
   isAdvanced?: boolean; // When true, grouped under collapsible Advanced Options accordion
+  visibleWhen?: {
+    fieldId: string;
+    equalsValue: any;
+  };
 }
 
 export interface CalculatorOutput {
