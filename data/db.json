@@ -146,11 +146,63 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-include-taxes-&-costs",
+          "label": "Include Taxes & Costs",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-cost-increases",
+          "label": "Annual Cost Increases",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-extra-payments",
+          "label": "Extra Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-biweekly-payments",
+          "label": "Biweekly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-include-taxes-costs",
+          "label": "Include Taxes & Costs",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-cost-increases-",
+          "label": "Annual Cost Increases (%)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-extra-monthly-payment-",
+          "label": "Extra Monthly Payment ($)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.795Z",
-      "updatedAt": "2026-10-03T16:00:29.795Z"
+      "updatedAt": "2026-10-03T16:00:29.795Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.5558167764963204",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Payment frequency is monthly, payments are end-of-month. Tax, insurance, PMI, and HOA fees increase annually.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229795_v007p",
@@ -189,11 +241,57 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-extra-monthly-payments",
+          "label": "Extra Monthly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-extra-yearly-payments",
+          "label": "Extra Yearly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-extra-one-time-payments",
+          "label": "Extra One-Time Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-extra-monthly-payments-",
+          "label": "Extra Monthly Payments ($)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-extra-yearly-payments-",
+          "label": "Extra Yearly Payments ($)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-extra-one-time-payments-",
+          "label": "Extra One-Time Payments ($)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.795Z",
-      "updatedAt": "2026-10-03T16:00:29.795Z"
+      "updatedAt": "2026-10-03T16:00:29.795Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.12020113050252079",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Payment frequency is monthly, payments are end-of-month, amortization schedule is fixed.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229795_iuq6g",
@@ -239,11 +337,39 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-biweekly-payments",
+          "label": "Biweekly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-alternative-calculation",
+          "label": "Alternative Calculation",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-alternative-calculation-method",
+          "label": "Alternative Calculation Method",
+          "type": "select",
+          "defaultValue": ""
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.795Z",
-      "updatedAt": "2026-10-03T16:00:29.795Z"
+      "updatedAt": "2026-10-03T16:00:29.795Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.18729433393547934",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Payment frequency is monthly, extra-payment timing is flexible, payoff method is calculated dynamically.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229795_q066t",
@@ -310,6 +436,12 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-affordability-calculation-method",
+          "label": "Affordability Calculation Method",
+          "type": "checkbox",
+          "defaultValue": false
         }
       ],
       "outputs": [
@@ -324,7 +456,17 @@
         }
       ],
       "createdAt": "2026-10-03T16:00:29.795Z",
-      "updatedAt": "2026-10-03T16:00:29.795Z"
+      "updatedAt": "2026-10-03T16:00:29.795Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.7312778877132662",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Debt-to-income ratio based on standard guidelines, tax/insurance/HOA estimates included.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229795_078y1",
@@ -349,11 +491,27 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-income-frequency",
+          "label": "Income Frequency",
+          "type": "checkbox",
+          "defaultValue": false
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.8761780804688668",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Income frequency mapped to monthly rent, affordability calculated based on standard rent-to-income ratios.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_4zd3i",
@@ -448,11 +606,33 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-frequency-for-each-income/expense",
+          "label": "Frequency for Each Income/Expense",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-frequency-for-each-income-expense",
+          "label": "Frequency for Each Income/Expense",
+          "type": "select",
+          "defaultValue": ""
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.22178273077382982",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Standard income and expense frequencies used for annualized DTI calculation.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_fxk0n",
@@ -463,10 +643,27 @@
       "isActive": true,
       "isFeatured": false,
       "order": 7,
-      "fields": [],
+      "fields": [
+        {
+          "id": "cond-selected-real-estate-calculator",
+          "label": "Selected Real Estate Calculator",
+          "type": "checkbox",
+          "defaultValue": false
+        }
+      ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.425162995403092",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Depends on selected specific real estate calculator tool.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_lor30",
@@ -533,11 +730,39 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-refinance-mode",
+          "label": "Refinance Mode",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-cash-out-amount",
+          "label": "Cash-Out Amount",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-cash-out-amount-",
+          "label": "Cash-Out Amount ($)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.3829334034062257",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Points/fees included, new loan terms applied to remaining balance, payment schedule recalculated.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_h28yz",
@@ -604,11 +829,75 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-use-loan",
+          "label": "Use Loan",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-repairs/value-after-repairs",
+          "label": "Repairs/Value After Repairs",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-sell-price/appreciation",
+          "label": "Sell Price/Appreciation",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-holding-period",
+          "label": "Holding Period",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-selling-costs",
+          "label": "Selling Costs",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-repairs-value-after-repairs-",
+          "label": "Repairs Value After Repairs ($)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-sell-price-appreciation-",
+          "label": "Sell Price/Appreciation ($)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-holding-period-years-",
+          "label": "Holding Period (Years)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-selling-costs-",
+          "label": "Selling Costs (%)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.09081162229994",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Vacancy and appreciation rates, operating costs, financing terms, and holding period are user-defined.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_3gkqw",
@@ -654,11 +943,27 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-alternative-calculation-path",
+          "label": "Alternative Calculation Path",
+          "type": "checkbox",
+          "defaultValue": false
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.9488777554672636",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Compounding frequency, payment frequency, and fee treatment calculated per financial standards.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_f2nn8",
@@ -718,11 +1023,45 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-mip-options",
+          "label": "MIP Options",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-increases",
+          "label": "Annual Increases",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-biweekly-payments",
+          "label": "Biweekly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-increases-",
+          "label": "Annual Increases (%)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.8302395573631396",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: MIP treatment, tax/insurance costs, payment schedule calculated as per FHA guidelines.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_y5nlx",
@@ -789,11 +1128,45 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-funding-fee-treatment",
+          "label": "Funding Fee Treatment",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-increases",
+          "label": "Annual Increases",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-biweekly-payments",
+          "label": "Biweekly Payments",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-annual-increases-",
+          "label": "Annual Increases (%)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.25760798508730876",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: VA funding fee, payment schedule, taxes and insurance handled per VA specific requirements.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_2qbj0",
@@ -825,11 +1198,39 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-cost-amount",
+          "label": "Cost Amount",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-cost-treatment",
+          "label": "Cost Treatment",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-cost-amount-",
+          "label": "Cost Amount ($)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.7116357252625978",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Fee amount, fee treatment, repayment schedule follow standard home equity terms.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_f2tec",
@@ -868,11 +1269,27 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-cost-treatment",
+          "label": "Cost Treatment",
+          "type": "checkbox",
+          "defaultValue": false
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.45696967986593706",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Draw period, repayment period, fees, and rate assumptions based on revolving credit model.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_1zbhc",
@@ -911,11 +1328,39 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-closing-costs",
+          "label": "Closing Costs",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-calculation-method",
+          "label": "Calculation Method",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-closing-costs-",
+          "label": "Closing Costs ($)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.4467080461565822",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Down-payment method, closing-cost treatment calculated for total cash-to-close.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     },
     {
       "id": "calc_1791043229796_soq2a",
@@ -1010,11 +1455,51 @@
           "type": "number",
           "defaultValue": 0,
           "required": true
+        },
+        {
+          "id": "cond-federal-marginal-tax-rate",
+          "label": "Federal Marginal Tax Rate",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-state-marginal-tax-rate",
+          "label": "State Marginal Tax Rate",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-filing-status",
+          "label": "Filing Status",
+          "type": "checkbox",
+          "defaultValue": false
+        },
+        {
+          "id": "cond-federal-marginal-tax-rate-",
+          "label": "Federal Marginal Tax Rate (%)",
+          "type": "number",
+          "defaultValue": 0
+        },
+        {
+          "id": "cond-state-marginal-tax-rate-",
+          "label": "State Marginal Tax Rate (%)",
+          "type": "number",
+          "defaultValue": 0
         }
       ],
       "outputs": [],
       "createdAt": "2026-10-03T16:00:29.796Z",
-      "updatedAt": "2026-10-03T16:00:29.796Z"
+      "updatedAt": "2026-10-03T16:00:29.796Z",
+      "contentSections": [
+        {
+          "id": "sect_17910438278710.22210803557495717",
+          "title": "Assumptions & Parameters",
+          "htmlContent": "<p>Assumptions: Home appreciation, rent increases, investment return, tax assumptions, and selling costs included.</p>",
+          "isEnabled": true,
+          "order": 99,
+          "sectionType": "assumptions"
+        }
+      ]
     }
   ],
   "posts": [],
