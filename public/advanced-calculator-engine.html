@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US Financial & Health Calculator Engine (Calculator.net Style)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            },
+            usblue: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar for Amortization Tables */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-usblue-500 selection:text-white">
+
+  <!-- TOP APP HEADER -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-usblue-600 to-emerald-500 flex items-center justify-center text-white font-black text-lg shadow-md">
+          US
+        </div>
+        <div>
+          <span class="font-bold text-base tracking-tight block text-white leading-none">Calculator.net Pro Engine</span>
+          <span class="text-[11px] text-slate-400 font-medium">Precision Math • US Tax &amp; Mortgage Formulas</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex space-x-1 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-semibold">
+        <button id="nav-mortgage" onclick="switchCalculator('mortgage')" class="px-3.5 py-1.5 rounded-lg transition-all duration-150 bg-usblue-600 text-white shadow-xs">
+          🏠 Mortgage &amp; Amortization
+        </button>
+        <button id="nav-payroll" onclick="switchCalculator('payroll')" class="px-3.5 py-1.5 rounded-lg transition-all duration-150 text-slate-300 hover:text-white hover:bg-slate-700">
+          💵 Paycheck &amp; FICA Tax
+        </button>
+        <button id="nav-health" onclick="switchCalculator('health')" class="px-3.5 py-1.5 rounded-lg transition-all duration-150 text-slate-300 hover:text-white hover:bg-slate-700">
+          🏃 Health, BMI &amp; TDEE
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 1: US MORTGAGE & AMORTIZATION ENGINE                               -->
+    <!-- ========================================================================= -->
+    <section id="module-mortgage" class="space-y-8">
+      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 tracking-tight">US Mortgage &amp; Amortization Calculator</h1>
+          <p class="text-xs text-slate-500 mt-1">Calculates fixed-rate monthly PITI, Homeowners Protection Act (HPA) 78% PMI auto-cancellation, and 360-month schedule.</p>
+        </div>
+        <div class="inline-flex items-center gap-1.5 text-xs font-mono bg-blue-50 text-usblue-700 px-3 py-1.5 rounded-lg border border-blue-100 font-semibold">
+          <span>Formula: M = P · [r(1+r)ⁿ] / [(1+r)ⁿ - 1]</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Input Form (Left 5 cols) -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Loan &amp; Property Parameters</h2>
+
+          <!-- Home Value -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+              <label for="mort-homeValue">Home Purchase Price ($)</label>
+              <span id="label-homeValue" class="font-mono text-usblue-600 font-bold">$400,000</span>
+            </div>
+            <input type="range" id="mort-homeValue-range" min="50000" max="2000000" step="5000" value="400000" class="w-full">
+            <input type="number" id="mort-homeValue" value="400000" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-usblue-500 focus:outline-none">
+          </div>
+
+          <!-- Down Payment -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label for="mort-downPercent" class="text-xs font-semibold text-slate-700">Down Payment (%)</label>
+              <input type="number" id="mort-downPercent" value="10" min="0" max="90" step="0.5" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-usblue-500 focus:outline-none">
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-slate-700">Down Payment ($)</label>
+              <div id="mort-downDollar" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-600 font-bold">
+                $40,000
+              </div>
+            </div>
+          </div>
+
+          <!-- Interest Rate & Loan Term -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label for="mort-rate" class="text-xs font-semibold text-slate-700">Interest Rate (%)</label>
+              <input type="number" id="mort-rate" value="6.75" min="0.5" max="20" step="0.125" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-usblue-500 focus:outline-none">
+            </div>
+            <div class="space-y-1.5">
+              <label for="mort-term" class="text-xs font-semibold text-slate-700">Loan Term (Years)</label>
+              <select id="mort-term" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold bg-white focus:ring-2 focus:ring-usblue-500 focus:outline-none">
+                <option value="30" selected>30 Years Fixed</option>
+                <option value="20">20 Years Fixed</option>
+                <option value="15">15 Years Fixed</option>
+                <option value="10">10 Years Fixed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Taxes, Insurance & HOA -->
+          <div class="pt-2 border-t border-slate-100 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Escrow &amp; Monthly Fees</h3>
+            
+            <div class="grid grid-cols-3 gap-2">
+              <div class="space-y-1">
+                <label for="mort-propertyTax" class="text-[11px] font-semibold text-slate-600">Property Tax ($/yr)</label>
+                <input type="number" id="mort-propertyTax" value="4800" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+              </div>
+              <div class="space-y-1">
+                <label for="mort-homeInsurance" class="text-[11px] font-semibold text-slate-600">Home Ins. ($/yr)</label>
+                <input type="number" id="mort-homeInsurance" value="1500" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+              </div>
+              <div class="space-y-1">
+                <label for="mort-hoa" class="text-[11px] font-semibold text-slate-600">HOA Fee ($/mo)</label>
+                <input type="number" id="mort-hoa" value="50" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Cards & Visuals (Right 7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Monthly Payment Hero Card -->
+          <div class="bg-gradient-to-br from-usblue-900 to-slate-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-usblue-300">Total Monthly Payment (PITI + HOA)</span>
+                <div id="out-mort-totalMonthly" class="text-4xl font-black tracking-tight font-mono text-white mt-1">$2,903.65</div>
+                <div class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                  <span>Loan Principal: <strong id="out-mort-principal" class="text-slate-200 font-mono">$360,000</strong></span>
+                  <span>•</span>
+                  <span>LTV: <strong id="out-mort-ltv" class="text-slate-200 font-mono">90.0%</strong></span>
+                </div>
+              </div>
+
+              <div id="pmi-status-badge" class="bg-amber-500/20 border border-amber-400/40 text-amber-300 px-3.5 py-2 rounded-xl text-xs font-semibold max-w-xs">
+                ⚠️ PMI applies: <span id="out-mort-pmi">$150.00</span>/mo until month <span id="out-mort-pmi-term-month" class="font-bold">#94</span> (<span id="out-mort-pmi-term-date"></span>) at 78% LTV.
+              </div>
+            </div>
+          </div>
+
+          <!-- Breakdown Charts Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Pie Chart: Monthly Cost Breakdown -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 w-full text-left">Monthly Payment Composition</h3>
+              <div class="w-48 h-48 relative">
+                <canvas id="chart-mortgage-pie"></canvas>
+              </div>
+              <div class="w-full mt-3 grid grid-cols-2 gap-2 text-[11px] font-medium text-slate-600">
+                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Principal &amp; Int: <span id="out-legend-pi" class="font-mono font-bold ml-auto">$2,335</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Property Tax: <span id="out-legend-tax" class="font-mono font-bold ml-auto">$400</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Home Insurance: <span id="out-legend-ins" class="font-mono font-bold ml-auto">$125</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> PMI + HOA: <span id="out-legend-other" class="font-mono font-bold ml-auto">$200</span></div>
+              </div>
+            </div>
+
+            <!-- Total Loan Summary Card -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Lifetime Loan Statistics</h3>
+              <div class="space-y-2.5 text-xs">
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                  <span class="text-slate-500">Total 360 Payments</span>
+                  <span id="out-mort-lifetimeTotal" class="font-mono font-bold text-slate-900">$840,600.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                  <span class="text-slate-500">Total Interest Paid</span>
+                  <span id="out-mort-totalInterest" class="font-mono font-bold text-red-600">$480,600.00</span>
+                </div>
+                <div class="flex justify-between py-1.5 border-b border-slate-100">
+                  <span class="text-slate-500">Interest-to-Principal Ratio</span>
+                  <span id="out-mort-interestRatio" class="font-mono font-bold text-slate-800">133.5%</span>
+                </div>
+                <div class="flex justify-between py-1.5">
+                  <span class="text-slate-500">Estimated Payoff Date</span>
+                  <span id="out-mort-payoffDate" class="font-mono font-bold text-usblue-600">Nov 2056</span>
+                </div>
+              </div>
+              <button onclick="toggleAmortizationTable()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors">
+                📊 View Full 360-Month Amortization Schedule
+              </button>
+            </div>
+          </div>
+
+          <!-- Amortization Line Chart -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Loan Balance vs Accumulated Interest Over Time</h3>
+            <div class="h-56 w-full relative">
+              <canvas id="chart-mortgage-line"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expandable 360-Month Amortization Table Modal/Container -->
+      <div id="container-amortization-table" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-base font-bold text-slate-900">Complete 360-Month Amortization Schedule</h3>
+          <button onclick="toggleAmortizationTable()" class="text-xs text-slate-500 hover:text-slate-800 font-bold">✕ Close</button>
+        </div>
+        <div class="max-h-96 overflow-y-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left text-xs font-mono">
+            <thead class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="p-2.5">#</th>
+                <th class="p-2.5">Date</th>
+                <th class="p-2.5">Payment</th>
+                <th class="p-2.5">Principal</th>
+                <th class="p-2.5">Interest</th>
+                <th class="p-2.5">Total Interest</th>
+                <th class="p-2.5">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="table-amortization-body" class="divide-y divide-slate-100">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 2: US PAYCHECK & PAYROLL TAX ENGINE (FICA & PROGRESSIVE BRACKETS) -->
+    <!-- ========================================================================= -->
+    <section id="module-payroll" class="hidden space-y-8">
+      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 tracking-tight">US Paycheck &amp; Payroll Tax Calculator</h1>
+          <p class="text-xs text-slate-500 mt-1">Calculates progressive Federal income brackets, Social Security $184,500 wage cap, Medicare &amp; 0.9% High-Earner Surtax, and 401(k)/HSA tax savings.</p>
+        </div>
+        <div class="inline-flex items-center gap-1.5 text-xs font-mono bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-100 font-semibold">
+          <span>IRS Standard Deduction: $15,700 (Single) / $31,400 (Joint)</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Input Form (Left 5 cols) -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Salary &amp; Withholding Parameters</h2>
+
+          <!-- Gross Salary -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+              <label for="pay-grossSalary">Annual Gross Salary ($)</label>
+              <span id="label-grossSalary" class="font-mono text-emerald-600 font-bold">$120,000</span>
+            </div>
+            <input type="range" id="pay-grossSalary-range" min="15000" max="500000" step="2500" value="120000" class="w-full">
+            <input type="number" id="pay-grossSalary" value="120000" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <!-- Filing Status & Pay Frequency -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label for="pay-filingStatus" class="text-xs font-semibold text-slate-700">Filing Status</label>
+              <select id="pay-filingStatus" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="single" selected>Single</option>
+                <option value="married">Married Filing Jointly</option>
+                <option value="head">Head of Household</option>
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label for="pay-frequency" class="text-xs font-semibold text-slate-700">Pay Frequency</label>
+              <select id="pay-frequency" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="26" selected>Bi-Weekly (26/yr)</option>
+                <option value="24">Semi-Monthly (24/yr)</option>
+                <option value="12">Monthly (12/yr)</option>
+                <option value="52">Weekly (52/yr)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pre-Tax Deductions (401k, HSA) -->
+          <div class="pt-2 border-t border-slate-100 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Pre-Tax Deductions (Reduces Federal Taxable)</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label for="pay-401kPercent" class="text-[11px] font-semibold text-slate-600">401(k) Contribution (%)</label>
+                <input type="number" id="pay-401kPercent" value="6" min="0" max="50" step="0.5" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+              </div>
+              <div class="space-y-1">
+                <label for="pay-hsa" class="text-[11px] font-semibold text-slate-600">HSA / FSA ($/yr)</label>
+                <input type="number" id="pay-hsa" value="3000" min="0" max="8300" step="100" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-mono">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Cards & Paycheck Visuals (Right 7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Net Paycheck Hero Card -->
+          <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Net Take-Home Pay (<span id="out-pay-freqLabel">Bi-Weekly</span>)</span>
+              <div id="out-pay-netPaycheck" class="text-4xl font-black tracking-tight font-mono text-white mt-1">$3,346.15</div>
+              <div class="text-xs text-slate-400 mt-1">
+                Annual Net Take-Home: <strong id="out-pay-annualNet" class="text-emerald-300 font-mono">$87,000.00</strong> (Effective Tax: <span id="out-pay-effectiveRate">22.4%</span>)
+              </div>
+            </div>
+            <div class="bg-white/10 border border-white/10 rounded-xl p-3 text-right">
+              <div class="text-[11px] text-slate-300 font-medium">Pre-Tax 401(k) Savings</div>
+              <div id="out-pay-401kSavings" class="text-lg font-bold font-mono text-emerald-300">$7,200/yr</div>
+            </div>
+          </div>
+
+          <!-- Tax & Deductions Breakdown -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Pie Chart: Paycheck Allocation -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 w-full text-left">Gross Income Allocation</h3>
+              <div class="w-48 h-48 relative">
+                <canvas id="chart-payroll-pie"></canvas>
+              </div>
+            </div>
+
+            <!-- Tax Items Breakdown List -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 pb-1">Annual Tax &amp; FICA Breakdown</h3>
+              
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-600">Federal Income Tax</span>
+                <span id="out-tax-federal" class="font-mono font-bold text-red-600">$14,500.00</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-600">Social Security Tax (6.2%)</span>
+                <span id="out-tax-socsec" class="font-mono font-bold text-amber-600">$7,440.00</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-600">Medicare Tax (1.45% + Addl)</span>
+                <span id="out-tax-medicare" class="font-mono font-bold text-amber-600">$1,740.00</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-100">
+                <span class="text-slate-600">Total FICA Contribution</span>
+                <span id="out-tax-totalFica" class="font-mono font-bold text-slate-800">$9,180.00</span>
+              </div>
+              <div class="flex justify-between py-1">
+                <span class="text-slate-600">Pre-Tax (401k + HSA)</span>
+                <span id="out-tax-pretax" class="font-mono font-bold text-emerald-600">$10,200.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- MODULE 3: HEALTH & IMPERIAL METRICS ENGINE (BMI, BMR & TDEE)             -->
+    <!-- ========================================================================= -->
+    <section id="module-health" class="hidden space-y-8">
+      <div class="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 tracking-tight">Health, BMI &amp; Daily Calorie (TDEE) Calculator</h1>
+          <p class="text-xs text-slate-500 mt-1">Computes Imperial BMI (703 constant), Mifflin-St Jeor Basal Metabolic Rate, and total daily energy expenditure targets.</p>
+        </div>
+        <div class="inline-flex items-center gap-1.5 text-xs font-mono bg-purple-50 text-purple-700 px-3 py-1.5 rounded-lg border border-purple-100 font-semibold">
+          <span>Imperial to Metric: 1 lb = 0.453592 kg • 1 in = 2.54 cm</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Input Form (Left 5 cols) -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-400">Body Metrics &amp; Lifestyle</h2>
+
+          <!-- Gender & Age -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-slate-700">Biological Sex</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="btn-male" onclick="setHealthGender('male')" class="py-2 rounded-lg text-xs font-bold bg-usblue-600 text-white">Male</button>
+                <button type="button" id="btn-female" onclick="setHealthGender('female')" class="py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Female</button>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <label for="health-age" class="text-xs font-semibold text-slate-700">Age (Years)</label>
+              <input type="number" id="health-age" value="32" min="15" max="100" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Height (Feet & Inches) -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-700">Height (US Imperial)</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex items-center gap-2">
+                <input type="number" id="health-feet" value="5" min="3" max="7" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono">
+                <span class="text-xs text-slate-500 font-bold">ft</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="number" id="health-inches" value="10" min="0" max="11" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono">
+                <span class="text-xs text-slate-500 font-bold">in</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weight (Pounds) -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+              <label for="health-weight">Body Weight (lbs)</label>
+              <span id="label-weight" class="font-mono text-purple-600 font-bold">175 lbs</span>
+            </div>
+            <input type="range" id="health-weight-range" min="80" max="400" value="175" class="w-full">
+            <input type="number" id="health-weight" value="175" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono">
+          </div>
+
+          <!-- Activity Level -->
+          <div class="space-y-1.5 pt-2 border-t border-slate-100">
+            <label for="health-activity" class="text-xs font-semibold text-slate-700">Daily Physical Activity Level</label>
+            <select id="health-activity" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white focus:ring-2 focus:ring-purple-500 focus:outline-none">
+              <option value="1.2">Sedentary (Little or no exercise)</option>
+              <option value="1.375" selected>Lightly Active (Exercise 1-3 days/week)</option>
+              <option value="1.55">Moderately Active (Exercise 3-5 days/week)</option>
+              <option value="1.725">Very Active (Hard exercise 6-7 days/week)</option>
+              <option value="1.9">Extremely Active (Athlete / physical job)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Output Cards (Right 7 cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- BMI & Category Hero -->
+          <div class="bg-gradient-to-br from-purple-900 to-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-300">Body Mass Index (BMI)</span>
+              <div class="flex items-baseline gap-3 mt-1">
+                <span id="out-health-bmi" class="text-4xl font-black tracking-tight font-mono text-white">25.1</span>
+                <span id="out-health-categoryBadge" class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500 text-slate-900">Normal / Overweight</span>
+              </div>
+              <div class="text-xs text-slate-400 mt-2">
+                Healthy BMI range for your height: <strong class="text-purple-300 font-mono">128 lbs – 174 lbs</strong>
+              </div>
+            </div>
+            <div class="bg-white/10 border border-white/10 rounded-xl p-3 text-right">
+              <div class="text-[11px] text-slate-300">Basal Metabolic Rate (BMR)</div>
+              <div id="out-health-bmr" class="text-lg font-bold font-mono text-purple-300">1,755 kcal/day</div>
+            </div>
+          </div>
+
+          <!-- TDEE Daily Caloric Targets -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Daily Calorie Expenditure &amp; Goals (TDEE)</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+              <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-1">
+                <span class="text-xs font-bold text-emerald-800">Fat Loss (-500 kcal)</span>
+                <div id="out-tdee-loss" class="text-2xl font-black font-mono text-emerald-600">1,913</div>
+                <span class="text-[10px] text-emerald-700">~1 lb fat loss per week</span>
+              </div>
+
+              <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-1">
+                <span class="text-xs font-bold text-usblue-800">Maintenance (TDEE)</span>
+                <div id="out-tdee-maintain" class="text-2xl font-black font-mono text-usblue-600">2,413</div>
+                <span class="text-[10px] text-slate-500">Maintain current weight</span>
+              </div>
+
+              <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 space-y-1">
+                <span class="text-xs font-bold text-purple-800">Lean Muscle (+350 kcal)</span>
+                <div id="out-tdee-gain" class="text-2xl font-black font-mono text-purple-600">2,763</div>
+                <span class="text-[10px] text-purple-700">Controlled surplus</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT CALCULATION ENGINE & PUB/SUB ARCHITECTURE                      -->
+  <!-- ========================================================================= -->
+  <script>
+    /**
+     * ============================================================================
+     * 1. CORE PRECISION UTILITIES & PUB/SUB EVENT CONTROLLER
+     * ============================================================================
+     */
+    const Precision = {
+      // Prevents 0.1 + 0.2 = 0.30000000000000004 IEEE-754 precision bugs
+      round: (value, decimals = 2) => {
+        const factor = Math.pow(10, decimals);
+        return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
+      },
+      formatCurrency: (amount) => {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(amount);
+      },
+      formatPercent: (rate, decimals = 2) => {
+        return `${Precision.round(rate, decimals).toFixed(decimals)}%`;
+      },
+      formatNumber: (val, decimals = 0) => {
+        return new Intl.NumberFormat('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        }).format(val);
+      }
+    };
+
+    // Centralized Pub/Sub Event Controller
+    class EventBus {
+      constructor() {
+        this.listeners = {};
+      }
+      subscribe(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+      }
+      publish(event, data) {
+        if (!this.listeners[event]) return;
+        this.listeners[event].forEach(cb => cb(data));
+      }
+    }
+    const bus = new EventBus();
+
+    /**
+     * ============================================================================
+     * 2. US MORTGAGE & AMORTIZATION ENGINE
+     * ============================================================================
+     */
+    const MortgageEngine = {
+      calculate: (params) => {
+        const {
+          homeValue,
+          downPercent,
+          annualInterestRate,
+          termYears,
+          annualPropertyTax,
+          annualHomeInsurance,
+          monthlyHoa
+        } = params;
+
+        const downPayment = Precision.round(homeValue * (downPercent / 100));
+        const principal = Precision.round(homeValue - downPayment);
+        const ltv = Precision.round((principal / homeValue) * 100, 1);
+
+        const monthlyRate = (annualInterestRate / 100) / 12;
+        const totalMonths = termYears * 12;
+
+        // Primary Mortgage Payment Formula: M = P * [ r(1 + r)^n ] / [ (1 + r)^n - 1 ]
+        let monthlyPI = 0;
+        if (monthlyRate === 0) {
+          monthlyPI = principal / totalMonths;
+        } else {
+          monthlyPI = principal * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+        }
+        monthlyPI = Precision.round(monthlyPI);
+
+        const monthlyTax = Precision.round(annualPropertyTax / 12);
+        const monthlyInsurance = Precision.round(annualHomeInsurance / 12);
+
+        // PMI Logic (US Homeowners Protection Act): applies until LTV <= 78%
+        const initialPmiRate = downPercent < 20 ? 0.0075 : 0; // ~0.75% annual average
+        const initialMonthlyPmi = Precision.round((principal * initialPmiRate) / 12);
+
+        // Build 360-Month Amortization Schedule
+        let balance = principal;
+        let totalInterestPaid = 0;
+        let pmiTerminationMonth = null;
+        let pmiTerminationDate = null;
+        const schedule = [];
+
+        const startDate = new Date();
+
+        for (let m = 1; m <= totalMonths; m++) {
+          const interestPayment = Precision.round(balance * monthlyRate);
+          const principalPayment = Precision.round(monthlyPI - interestPayment);
+          totalInterestPaid = Precision.round(totalInterestPaid + interestPayment);
+          balance = Precision.round(balance - principalPayment);
+          if (balance < 0) balance = 0;
+
+          const currentLtv = (balance / homeValue);
+          let pmiActive = false;
+          if (downPercent < 20 && currentLtv > 0.78) {
+            pmiActive = true;
+          } else if (downPercent < 20 && !pmiTerminationMonth && currentLtv <= 0.78) {
+            pmiTerminationMonth = m;
+            const termDate = new Date(startDate);
+            termDate.setMonth(startDate.getMonth() + m);
+            pmiTerminationDate = termDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          }
+
+          const paymentDate = new Date(startDate);
+          paymentDate.setMonth(startDate.getMonth() + m);
+
+          schedule.push({
+            month: m,
+            date: paymentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+            payment: monthlyPI,
+            principalPaid: principalPayment,
+            interestPaid: interestPayment,
+            totalInterest: totalInterestPaid,
+            balance: balance,
+            pmi: pmiActive ? initialMonthlyPmi : 0
+          });
+        }
+
+        const totalMonthlyPiti = Precision.round(monthlyPI + monthlyTax + monthlyInsurance + (downPercent < 20 ? initialMonthlyPmi : 0) + monthlyHoa);
+        const totalLifetimeCost = Precision.round((monthlyPI * totalMonths) + (annualPropertyTax * termYears) + (annualHomeInsurance * termYears) + (monthlyHoa * totalMonths));
+
+        return {
+          homeValue,
+          downPayment,
+          principal,
+          ltv,
+          monthlyPI,
+          monthlyTax,
+          monthlyInsurance,
+          monthlyPmi: initialMonthlyPmi,
+          monthlyHoa,
+          totalMonthlyPiti,
+          totalInterestPaid,
+          totalLifetimeCost,
+          pmiTerminationMonth: pmiTerminationMonth || (downPercent >= 20 ? 0 : totalMonths),
+          pmiTerminationDate: pmiTerminationDate || 'N/A',
+          schedule
+        };
+      }
+    };
+
+    /**
+     * ============================================================================
+     * 3. US PAYCHECK & PROGRESSIVE PAYROLL TAX ENGINE
+     * ============================================================================
+     */
+    const PayrollEngine = {
+      // 2026 US Federal Tax Brackets (IRS Revenue Procedure standards)
+      brackets: {
+        single: [
+          { cap: 11925, rate: 0.10 },
+          { cap: 48475, rate: 0.12 },
+          { cap: 103350, rate: 0.22 },
+          { cap: 197300, rate: 0.24 },
+          { cap: 250525, rate: 0.32 },
+          { cap: 626350, rate: 0.35 },
+          { cap: Infinity, rate: 0.37 }
+        ],
+        married: [
+          { cap: 23850, rate: 0.10 },
+          { cap: 96950, rate: 0.12 },
+          { cap: 206700, rate: 0.22 },
+          { cap: 394600, rate: 0.24 },
+          { cap: 501050, rate: 0.32 },
+          { cap: 751600, rate: 0.35 },
+          { cap: Infinity, rate: 0.37 }
+        ],
+        head: [
+          { cap: 17000, rate: 0.10 },
+          { cap: 64850, rate: 0.12 },
+          { cap: 103350, rate: 0.22 },
+          { cap: 197300, rate: 0.24 },
+          { cap: 250500, rate: 0.32 },
+          { cap: 626350, rate: 0.35 },
+          { cap: Infinity, rate: 0.37 }
+        ]
+      },
+      standardDeductions: {
+        single: 15700,
+        married: 31400,
+        head: 23500
+      },
+      FICA_WAGE_CAP: 184500, // Social Security wage cap
+
+      calculate: (params) => {
+        const { grossSalary, filingStatus, payFrequency, contribution401kPercent, hsaAnnual } = params;
+
+        // 1. Pre-Tax Deductions
+        const annual401k = Precision.round(grossSalary * (contribution401kPercent / 100));
+        const totalPreTax = Precision.round(annual401k + hsaAnnual);
+
+        // 2. Federal Taxable Income
+        const agi = Math.max(0, grossSalary - totalPreTax);
+        const standardDeduction = PayrollEngine.standardDeductions[filingStatus] || 15700;
+        const taxableIncome = Math.max(0, agi - standardDeduction);
+
+        // 3. Progressive Tax Bracket Calculation
+        const bracketList = PayrollEngine.brackets[filingStatus] || PayrollEngine.brackets.single;
+        let federalTax = 0;
+        let prevCap = 0;
+
+        for (const b of bracketList) {
+          if (taxableIncome > prevCap) {
+            const chunk = Math.min(taxableIncome, b.cap) - prevCap;
+            federalTax += chunk * b.rate;
+            prevCap = b.cap;
+          } else {
+            break;
+          }
+        }
+        federalTax = Precision.round(federalTax);
+
+        // 4. FICA Tax Calculations
+        // Social Security: 6.2% on income up to FICA_WAGE_CAP
+        const socialSecurityTaxable = Math.min(grossSalary, PayrollEngine.FICA_WAGE_CAP);
+        const socialSecurityTax = Precision.round(socialSecurityTaxable * 0.062);
+
+        // Medicare: 1.45% baseline on all earnings + 0.9% Additional Medicare Tax on high earners (> $200k single / $250k joint)
+        let medicareTax = Precision.round(grossSalary * 0.0145);
+        const addlMedicareThreshold = filingStatus === 'married' ? 250000 : 200000;
+        if (grossSalary > addlMedicareThreshold) {
+          const excess = grossSalary - addlMedicareThreshold;
+          medicareTax = Precision.round(medicareTax + (excess * 0.009));
+        }
+
+        const totalFica = Precision.round(socialSecurityTax + medicareTax);
+        const totalTaxes = Precision.round(federalTax + totalFica);
+        const annualNet = Precision.round(grossSalary - totalTaxes - totalPreTax);
+
+        const periods = parseInt(payFrequency, 10) || 26;
+        const netPerPaycheck = Precision.round(annualNet / periods);
+        const grossPerPaycheck = Precision.round(grossSalary / periods);
+        const effectiveTaxRate = grossSalary > 0 ? Precision.round((totalTaxes / grossSalary) * 100, 1) : 0;
+
+        return {
+          grossSalary,
+          annualNet,
+          netPerPaycheck,
+          grossPerPaycheck,
+          federalTax,
+          socialSecurityTax,
+          medicareTax,
+          totalFica,
+          totalPreTax,
+          annual401k,
+          effectiveTaxRate,
+          periods
+        };
+      }
+    };
+
+    /**
+     * ============================================================================
+     * 4. HEALTH & IMPERIAL METRICS ENGINE (BMI, BMR, TDEE)
+     * ============================================================================
+     */
+    const HealthEngine = {
+      calculate: (params) => {
+        const { gender, age, feet, inches, weightLbs, activityMultiplier } = params;
+
+        const totalInches = (feet * 12) + inches;
+        
+        // Imperial BMI Formula: 703 * (weight_lbs / height_inches^2)
+        let bmi = 0;
+        if (totalInches > 0) {
+          bmi = Precision.round(703 * (weightLbs / (totalInches * totalInches)), 1);
+        }
+
+        let bmiCategory = 'Normal';
+        let badgeColor = 'bg-emerald-500';
+        if (bmi < 18.5) {
+          bmiCategory = 'Underweight';
+          badgeColor = 'bg-blue-500';
+        } else if (bmi < 25.0) {
+          bmiCategory = 'Normal Weight';
+          badgeColor = 'bg-emerald-500';
+        } else if (bmi < 30.0) {
+          bmiCategory = 'Overweight';
+          badgeColor = 'bg-amber-500';
+        } else {
+          bmiCategory = 'Obese';
+          badgeColor = 'bg-red-500';
+        }
+
+        // Convert Imperial to Metric behind the scenes for Mifflin-St Jeor Formula
+        // 1 lb = 0.45359237 kg, 1 in = 2.54 cm
+        const weightKg = weightLbs * 0.45359237;
+        const heightCm = totalInches * 2.54;
+
+        // Mifflin-St Jeor Equation:
+        // Men: (10 * weight_kg) + (6.25 * height_cm) - (5 * age) + 5
+        // Women: (10 * weight_kg) + (6.25 * height_cm) - (5 * age) - 161
+        let bmr = 0;
+        if (gender === 'male') {
+          bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5;
+        } else {
+          bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161;
+        }
+        bmr = Math.round(bmr);
+
+        // TDEE = BMR * Activity Multiplier
+        const tdee = Math.round(bmr * activityMultiplier);
+        const fatLoss = Math.round(tdee - 500);
+        const muscleGain = Math.round(tdee + 350);
+
+        return {
+          bmi,
+          bmiCategory,
+          badgeColor,
+          bmr,
+          tdee,
+          fatLoss,
+          muscleGain
+        };
+      }
+    };
+
+    /**
+     * ============================================================================
+     * 5. CHART.JS VISUAL CONTROLLERS
+     * ============================================================================
+     */
+    let mortgagePieChart = null;
+    let mortgageLineChart = null;
+    let payrollPieChart = null;
+
+    function initCharts() {
+      // Mortgage Pie Chart
+      const pieCtx = document.getElementById('chart-mortgage-pie')?.getContext('2d');
+      if (pieCtx) {
+        mortgagePieChart = new Chart(pieCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Principal & Interest', 'Property Taxes', 'Homeowners Insurance', 'PMI / HOA'],
+            datasets: [{
+              data: [2335, 400, 125, 50],
+              backgroundColor: ['#2563eb', '#f59e0b', '#10b981', '#a855f7'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '70%'
+          }
+        });
+      }
+
+      // Mortgage Amortization Line Chart
+      const lineCtx = document.getElementById('chart-mortgage-line')?.getContext('2d');
+      if (lineCtx) {
+        mortgageLineChart = new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: 'Remaining Principal Balance',
+                data: [],
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                fill: true,
+                tension: 0.1,
+                borderWidth: 2,
+                pointRadius: 0
+              },
+              {
+                label: 'Total Accumulated Interest',
+                data: [],
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                fill: true,
+                tension: 0.1,
+                borderWidth: 2,
+                pointRadius: 0
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+              y: {
+                ticks: {
+                  callback: (value) => '$' + (value / 1000) + 'k'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Payroll Allocation Pie Chart
+      const payPieCtx = document.getElementById('chart-payroll-pie')?.getContext('2d');
+      if (payPieCtx) {
+        payrollPieChart = new Chart(payPieCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Take-Home Net Pay', 'Federal Tax', 'FICA (SocSec + Med)', 'Pre-Tax 401(k)/HSA'],
+            datasets: [{
+              data: [87000, 14500, 9180, 10200],
+              backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+            cutout: '65%'
+          }
+        });
+      }
+    }
+
+    /**
+     * ============================================================================
+     * 6. UI SYNCHRONIZATION & TWO-WAY BINDINGS
+     * ============================================================================
+     */
+    let healthGender = 'male';
+
+    function setHealthGender(g) {
+      healthGender = g;
+      const maleBtn = document.getElementById('btn-male');
+      const femaleBtn = document.getElementById('btn-female');
+      if (g === 'male') {
+        maleBtn.className = 'py-2 rounded-lg text-xs font-bold bg-usblue-600 text-white';
+        femaleBtn.className = 'py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      } else {
+        femaleBtn.className = 'py-2 rounded-lg text-xs font-bold bg-usblue-600 text-white';
+        maleBtn.className = 'py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      }
+      runHealthCalculation();
+    }
+
+    function switchCalculator(calcId) {
+      document.getElementById('module-mortgage').classList.add('hidden');
+      document.getElementById('module-payroll').classList.add('hidden');
+      document.getElementById('module-health').classList.add('hidden');
+
+      document.getElementById('nav-mortgage').className = 'px-3.5 py-1.5 rounded-lg transition-all duration-150 text-slate-300 hover:text-white hover:bg-slate-700';
+      document.getElementById('nav-payroll').className = 'px-3.5 py-1.5 rounded-lg transition-all duration-150 text-slate-300 hover:text-white hover:bg-slate-700';
+      document.getElementById('nav-health').className = 'px-3.5 py-1.5 rounded-lg transition-all duration-150 text-slate-300 hover:text-white hover:bg-slate-700';
+
+      document.getElementById(`module-${calcId}`).classList.remove('hidden');
+      document.getElementById(`nav-${calcId}`).className = 'px-3.5 py-1.5 rounded-lg transition-all duration-150 bg-usblue-600 text-white shadow-xs';
+    }
+
+    function toggleAmortizationTable() {
+      const container = document.getElementById('container-amortization-table');
+      container.classList.toggle('hidden');
+    }
+
+    // Mortgage Recalculate Handler
+    function runMortgageCalculation() {
+      const homeValue = parseFloat(document.getElementById('mort-homeValue').value) || 0;
+      const downPercent = parseFloat(document.getElementById('mort-downPercent').value) || 0;
+      const rate = parseFloat(document.getElementById('mort-rate').value) || 0;
+      const termYears = parseInt(document.getElementById('mort-term').value, 10) || 30;
+      const propertyTax = parseFloat(document.getElementById('mort-propertyTax').value) || 0;
+      const homeInsurance = parseFloat(document.getElementById('mort-homeInsurance').value) || 0;
+      const hoa = parseFloat(document.getElementById('mort-hoa').value) || 0;
+
+      const result = MortgageEngine.calculate({
+        homeValue,
+        downPercent,
+        annualInterestRate: rate,
+        termYears,
+        annualPropertyTax: propertyTax,
+        annualHomeInsurance: homeInsurance,
+        monthlyHoa: hoa
+      });
+
+      // Update UI Text Cards
+      document.getElementById('label-homeValue').innerText = Precision.formatCurrency(homeValue);
+      document.getElementById('mort-downDollar').innerText = Precision.formatCurrency(result.downPayment);
+      document.getElementById('out-mort-totalMonthly').innerText = Precision.formatCurrency(result.totalMonthlyPiti);
+      document.getElementById('out-mort-principal').innerText = Precision.formatCurrency(result.principal);
+      document.getElementById('out-mort-ltv').innerText = result.ltv + '%';
+      document.getElementById('out-mort-lifetimeTotal').innerText = Precision.formatCurrency(result.totalLifetimeCost);
+      document.getElementById('out-mort-totalInterest').innerText = Precision.formatCurrency(result.totalInterestPaid);
+      document.getElementById('out-mort-interestRatio').innerText = Precision.formatPercent((result.totalInterestPaid / result.principal) * 100, 1);
+
+      // PMI Badge Update
+      const pmiBadge = document.getElementById('pmi-status-badge');
+      if (downPercent < 20) {
+        pmiBadge.classList.remove('hidden');
+        document.getElementById('out-mort-pmi').innerText = Precision.formatCurrency(result.monthlyPmi);
+        document.getElementById('out-mort-pmi-term-month').innerText = `#${result.pmiTerminationMonth}`;
+        document.getElementById('out-mort-pmi-term-date').innerText = result.pmiTerminationDate;
+      } else {
+        pmiBadge.classList.add('hidden');
+      }
+
+      // Legend Numbers
+      document.getElementById('out-legend-pi').innerText = Precision.formatCurrency(result.monthlyPI);
+      document.getElementById('out-legend-tax').innerText = Precision.formatCurrency(result.monthlyTax);
+      document.getElementById('out-legend-ins').innerText = Precision.formatCurrency(result.monthlyInsurance);
+      document.getElementById('out-legend-other').innerText = Precision.formatCurrency((downPercent < 20 ? result.monthlyPmi : 0) + hoa);
+
+      // Update Pie Chart
+      if (mortgagePieChart) {
+        mortgagePieChart.data.datasets[0].data = [
+          result.monthlyPI,
+          result.monthlyTax,
+          result.monthlyInsurance,
+          (downPercent < 20 ? result.monthlyPmi : 0) + hoa
+        ];
+        mortgagePieChart.update();
+      }
+
+      // Update Line Chart (Sample every 12 months)
+      if (mortgageLineChart) {
+        const sampledLabels = [];
+        const balanceData = [];
+        const interestData = [];
+        result.schedule.forEach((s) => {
+          if (s.month % 12 === 0 || s.month === 1 || s.month === result.schedule.length) {
+            sampledLabels.push(`Yr ${Math.round(s.month / 12)}`);
+            balanceData.push(s.balance);
+            interestData.push(s.totalInterest);
+          }
+        });
+        mortgageLineChart.data.labels = sampledLabels;
+        mortgageLineChart.data.datasets[0].data = balanceData;
+        mortgageLineChart.data.datasets[1].data = interestData;
+        mortgageLineChart.update();
+      }
+
+      // Populate Table Body
+      const tbody = document.getElementById('table-amortization-body');
+      tbody.innerHTML = result.schedule.slice(0, 120).map(row => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-2 text-slate-500 font-bold">${row.month}</td>
+          <td class="p-2 text-slate-700">${row.date}</td>
+          <td class="p-2 font-bold text-slate-800">${Precision.formatCurrency(row.payment)}</td>
+          <td class="p-2 text-emerald-600 font-semibold">${Precision.formatCurrency(row.principalPaid)}</td>
+          <td class="p-2 text-red-600">${Precision.formatCurrency(row.interestPaid)}</td>
+          <td class="p-2 text-slate-600">${Precision.formatCurrency(row.totalInterest)}</td>
+          <td class="p-2 font-bold text-usblue-700">${Precision.formatCurrency(row.balance)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Payroll Recalculate Handler
+    function runPayrollCalculation() {
+      const grossSalary = parseFloat(document.getElementById('pay-grossSalary').value) || 0;
+      const filingStatus = document.getElementById('pay-filingStatus').value;
+      const payFrequency = document.getElementById('pay-frequency').value;
+      const contribution401kPercent = parseFloat(document.getElementById('pay-401kPercent').value) || 0;
+      const hsaAnnual = parseFloat(document.getElementById('pay-hsa').value) || 0;
+
+      const result = PayrollEngine.calculate({
+        grossSalary,
+        filingStatus,
+        payFrequency,
+        contribution401kPercent,
+        hsaAnnual
+      });
+
+      // Update Labels
+      document.getElementById('label-grossSalary').innerText = Precision.formatCurrency(grossSalary);
+      document.getElementById('out-pay-netPaycheck').innerText = Precision.formatCurrency(result.netPerPaycheck);
+      document.getElementById('out-pay-annualNet').innerText = Precision.formatCurrency(result.annualNet);
+      document.getElementById('out-pay-effectiveRate').innerText = `${result.effectiveTaxRate}%`;
+      document.getElementById('out-pay-401kSavings').innerText = Precision.formatCurrency(result.annual401k) + '/yr';
+
+      const freqMap = { '26': 'Bi-Weekly', '24': 'Semi-Monthly', '12': 'Monthly', '52': 'Weekly' };
+      document.getElementById('out-pay-freqLabel').innerText = freqMap[payFrequency] || 'Bi-Weekly';
+
+      document.getElementById('out-tax-federal').innerText = Precision.formatCurrency(result.federalTax);
+      document.getElementById('out-tax-socsec').innerText = Precision.formatCurrency(result.socialSecurityTax);
+      document.getElementById('out-tax-medicare').innerText = Precision.formatCurrency(result.medicareTax);
+      document.getElementById('out-tax-totalFica').innerText = Precision.formatCurrency(result.totalFica);
+      document.getElementById('out-tax-pretax').innerText = Precision.formatCurrency(result.totalPreTax);
+
+      // Update Pie Chart
+      if (payrollPieChart) {
+        payrollPieChart.data.datasets[0].data = [
+          result.annualNet,
+          result.federalTax,
+          result.totalFica,
+          result.totalPreTax
+        ];
+        payrollPieChart.update();
+      }
+    }
+
+    // Health Recalculate Handler
+    function runHealthCalculation() {
+      const age = parseInt(document.getElementById('health-age').value, 10) || 30;
+      const feet = parseInt(document.getElementById('health-feet').value, 10) || 5;
+      const inches = parseInt(document.getElementById('health-inches').value, 10) || 10;
+      const weightLbs = parseFloat(document.getElementById('health-weight').value) || 170;
+      const activityMultiplier = parseFloat(document.getElementById('health-activity').value) || 1.375;
+
+      const result = HealthEngine.calculate({
+        gender: healthGender,
+        age,
+        feet,
+        inches,
+        weightLbs,
+        activityMultiplier
+      });
+
+      document.getElementById('label-weight').innerText = `${weightLbs} lbs`;
+      document.getElementById('out-health-bmi').innerText = result.bmi;
+      
+      const badge = document.getElementById('out-health-categoryBadge');
+      badge.innerText = result.bmiCategory;
+      badge.className = `px-2.5 py-1 rounded-md text-xs font-bold text-white ${result.badgeColor}`;
+
+      document.getElementById('out-health-bmr').innerText = Precision.formatNumber(result.bmr) + ' kcal/day';
+      document.getElementById('out-tdee-maintain').innerText = Precision.formatNumber(result.tdee);
+      document.getElementById('out-tdee-loss').innerText = Precision.formatNumber(result.fatLoss);
+      document.getElementById('out-tdee-gain').innerText = Precision.formatNumber(result.muscleGain);
+    }
+
+    /**
+     * ============================================================================
+     * 7. EVENT LISTENERS & TWO-WAY INPUT SYNC INITIALIZATION
+     * ============================================================================
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+
+      // Mortgage Sync: Slider <-> Input
+      const mortRange = document.getElementById('mort-homeValue-range');
+      const mortInput = document.getElementById('mort-homeValue');
+      mortRange.addEventListener('input', (e) => { mortInput.value = e.target.value; runMortgageCalculation(); });
+      mortInput.addEventListener('input', (e) => { mortRange.value = e.target.value; runMortgageCalculation(); });
+
+      ['mort-downPercent', 'mort-rate', 'mort-term', 'mort-propertyTax', 'mort-homeInsurance', 'mort-hoa'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', runMortgageCalculation);
+        document.getElementById(id)?.addEventListener('change', runMortgageCalculation);
+      });
+
+      // Payroll Sync: Slider <-> Input
+      const payRange = document.getElementById('pay-grossSalary-range');
+      const payInput = document.getElementById('pay-grossSalary');
+      payRange.addEventListener('input', (e) => { payInput.value = e.target.value; runPayrollCalculation(); });
+      payInput.addEventListener('input', (e) => { payRange.value = e.target.value; runPayrollCalculation(); });
+
+      ['pay-filingStatus', 'pay-frequency', 'pay-401kPercent', 'pay-hsa'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', runPayrollCalculation);
+        document.getElementById(id)?.addEventListener('change', runPayrollCalculation);
+      });
+
+      // Health Sync: Slider <-> Input
+      const healthRange = document.getElementById('health-weight-range');
+      const healthInput = document.getElementById('health-weight');
+      healthRange.addEventListener('input', (e) => { healthInput.value = e.target.value; runHealthCalculation(); });
+      healthInput.addEventListener('input', (e) => { healthRange.value = e.target.value; runHealthCalculation(); });
+
+      ['health-age', 'health-feet', 'health-inches', 'health-activity'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', runHealthCalculation);
+        document.getElementById(id)?.addEventListener('change', runHealthCalculation);
+      });
+
+      // Initial execution
+      runMortgageCalculation();
+      runPayrollCalculation();
+      runHealthCalculation();
+    });
+  </script>
+</body>
+</html>

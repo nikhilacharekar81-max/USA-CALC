@@ -1,0 +1,6 @@
+{
+  "name": "CalcPlatform - Global Calculator Platform & Management Engine",
+  "description": "Production-ready global calculator directory and engine with a powerful admin management panel for categories, subcategories, and dynamic calculators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

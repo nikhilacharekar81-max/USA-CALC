@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USA Calculator Suite - Calculator.net Style Multi-Category Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js 4 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- FontAwesome 6 Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        calcgreen: {
+                            500: '#107c41',
+                            600: '#0b6a33',
+                            700: '#085327',
+                            50: '#f0fdf4',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @media print {
+            header, nav, .no-print { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; }
+            .printable-card { box-shadow: none !important; border: 1px solid #cccccc !important; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-calcgreen-500 selection:text-white">
+
+    <!-- Header styled like Calculator.net with US Flag motif -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-blue-700 via-blue-600 to-red-600 flex items-center justify-center text-white font-black text-xl shadow-md">
+                        US
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-lg text-slate-900 tracking-tight block leading-none">Calculator<span class="text-calcgreen-600">.net</span> <span class="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1">USA Edition</span></span>
+                        <span class="text-[11px] text-slate-500 font-medium">Official Financial, Health & Daily Life Calculator Suite</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.print()" class="no-print px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-print"></i> Print
+                    </button>
+                </div>
+            </div>
+
+            <!-- Primary Category Tabs Navigation -->
+            <nav class="flex border-t border-slate-200 overflow-x-auto no-scrollbar">
+                <button onclick="switchCategory('financial')" id="cat-tab-financial" class="cat-tab px-5 py-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 border-calcgreen-600 text-calcgreen-700 bg-calcgreen-50 transition shrink-0 cursor-pointer">
+                    <i class="fa-solid fa-file-invoice-dollar text-calcgreen-600"></i> Financial
+                </button>
+                <button onclick="switchCategory('health')" id="cat-tab-health" class="cat-tab px-5 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition shrink-0 cursor-pointer">
+                    <i class="fa-solid fa-heart-pulse text-blue-600"></i> Health & Fitness
+                </button>
+                <button onclick="switchCategory('math')" id="cat-tab-math" class="cat-tab px-5 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 border-b-2 border-transparent transition shrink-0 cursor-pointer">
+                    <i class="fa-solid fa-calculator text-amber-600"></i> Math & Daily Life
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Sub-Calculator Pills Navigation Bar -->
+    <div class="bg-white border-b border-slate-200 shadow-2xs no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center gap-2 overflow-x-auto">
+            <!-- Financial Group -->
+            <div id="subnav-financial" class="flex gap-2 shrink-0">
+                <button onclick="switchCalc('mortgage')" id="sub-mortgage" class="sub-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-calcgreen-600 text-white shadow-xs">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Mortgage & Real Estate
+                </button>
+                <button onclick="switchCalc('tax')" id="sub-tax" class="sub-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    <i class="fa-solid fa-file-invoice mr-1"></i> Income Tax & FICA
+                </button>
+                <button onclick="switchCalc('auto')" id="sub-auto" class="sub-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    <i class="fa-solid fa-car mr-1"></i> Auto Loan & Trade-In
+                </button>
+                <button onclick="switchCalc('investment')" id="sub-investment" class="sub-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    <i class="fa-solid fa-chart-line mr-1"></i> 401(k) & IRA
+                </button>
+            </div>
+            <!-- Health Group -->
+            <div id="subnav-health" class="hidden flex gap-2 shrink-0">
+                <button onclick="switchCalc('bmi')" id="sub-bmi" class="sub-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-xs">
+                    <i class="fa-solid fa-weight-scale mr-1"></i> BMI Calculator (US lbs/in)
+                </button>
+                <button onclick="switchCalc('bmr')" id="sub-bmr" class="sub-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    <i class="fa-solid fa-fire mr-1"></i> BMR & TDEE (Mifflin-St Jeor)
+                </button>
+                <button onclick="switchCalc('bodyfat')" id="sub-bodyfat" class="sub-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200">
+                    <i class="fa-solid fa-ruler mr-1"></i> Body Fat % (US Navy)
+                </button>
+            </div>
+            <!-- Math Group -->
+            <div id="subnav-math" class="hidden flex gap-2 shrink-0">
+                <button onclick="switchCalc('tip')" id="sub-tip" class="sub-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-xs">
+                    <i class="fa-solid fa-receipt mr-1"></i> Tip & State Sales Tax Splitter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- ============================================================== -->
+        <!-- 1. MORTGAGE CALCULATOR -->
+        <!-- ============================================================== -->
+        <section id="calc-mortgage" class="calc-section space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-house-chimney text-calcgreen-600"></i> US Mortgage & Amortization Calculator
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Calculates Principal & Interest, Private Mortgage Insurance (PMI < 20% down), Property Taxes, Home Insurance, and generates an annual amortization schedule.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="exportMortgageCsv()" class="px-3 py-1.5 text-xs font-bold bg-calcgreen-600 hover:bg-calcgreen-700 text-white rounded-lg transition shadow-xs">
+                        <i class="fa-solid fa-download mr-1"></i> Export Schedule (CSV)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Controls -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 border-b pb-2">Loan Parameters</h3>
+
+                    <div>
+                        <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                            <span>Home Purchase Price ($)</span>
+                            <span id="mort-disp-price" class="text-calcgreen-600 font-extrabold">$450,000</span>
+                        </div>
+                        <input type="range" id="mort-slider-price" min="100000" max="2000000" step="5000" value="450000" oninput="syncMortPrice('slider')" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-calcgreen-600 mb-2">
+                        <input type="number" id="mort-in-price" value="450000" oninput="syncMortPrice('num')" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-calcgreen-500 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Down Payment ($)</label>
+                            <input type="number" id="mort-in-dp-amt" value="90000" oninput="syncMortDpAmt()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-calcgreen-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Down Payment (%)</label>
+                            <input type="number" id="mort-in-dp-pct" value="20" min="0" max="95" step="0.5" oninput="syncMortDpPct()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-calcgreen-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Interest Rate (APR %)</label>
+                            <input type="number" id="mort-in-rate" value="6.75" step="0.125" oninput="calcMortgage()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-calcgreen-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Loan Term</label>
+                            <select id="mort-in-term" onchange="calcMortgage()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white focus:ring-2 focus:ring-calcgreen-500 outline-none">
+                                <option value="30" selected>30 Years Fixed</option>
+                                <option value="20">20 Years Fixed</option>
+                                <option value="15">15 Years Fixed</option>
+                                <option value="10">10 Years Fixed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Property Tax (%)</label>
+                            <input type="number" id="mort-in-tax-rate" value="1.15" step="0.05" oninput="calcMortgage()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Home Ins ($/yr)</label>
+                            <input type="number" id="mort-in-ins" value="1500" step="50" oninput="calcMortgage()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">HOA Fee ($/mo)</label>
+                            <input type="number" id="mort-in-hoa" value="75" step="25" oninput="calcMortgage()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                    </div>
+
+                    <div id="mort-pmi-alert" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
+                        <div>
+                            <strong>PMI Required (&lt; 20% down):</strong>
+                            <p class="text-[11px] text-amber-700 mt-0.5">Estimated at 0.85% annual rate until 80% LTV equity is achieved.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results & Visuals -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Monthly Pay</span>
+                            <span id="mort-res-monthly" class="text-2xl font-black text-calcgreen-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">P&I, Taxes, Insurance & Fees</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Loan Principal</span>
+                            <span id="mort-res-loan-amt" class="text-2xl font-black text-slate-800 block mt-1">$0</span>
+                            <span id="mort-res-ltv" class="text-[11px] text-slate-400">LTV: 0%</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Interest Paid</span>
+                            <span id="mort-res-total-interest" class="text-2xl font-black text-rose-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Over full duration</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                        <h4 class="text-sm font-bold text-slate-900 mb-4">Monthly Payment Breakdown</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="h-48 relative">
+                                <canvas id="chart-mortgage-donut"></canvas>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between py-1 border-b border-slate-100">
+                                    <span class="text-slate-600"><i class="fa-solid fa-circle text-[#059669] mr-1.5 text-[8px]"></i>Principal & Interest</span>
+                                    <strong id="mort-break-pi" class="text-slate-900">$0</strong>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-100">
+                                    <span class="text-slate-600"><i class="fa-solid fa-circle text-[#2563eb] mr-1.5 text-[8px]"></i>Property Taxes</span>
+                                    <strong id="mort-break-taxes" class="text-slate-900">$0</strong>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-slate-100">
+                                    <span class="text-slate-600"><i class="fa-solid fa-circle text-[#d97706] mr-1.5 text-[8px]"></i>Home Insurance</span>
+                                    <strong id="mort-break-ins" class="text-slate-900">$0</strong>
+                                </div>
+                                <div id="mort-row-pmi" class="flex justify-between py-1 border-b border-slate-100 text-rose-600">
+                                    <span><i class="fa-solid fa-circle text-[#dc2626] mr-1.5 text-[8px]"></i>PMI Insurance</span>
+                                    <strong id="mort-break-pmi">$0</strong>
+                                </div>
+                                <div class="flex justify-between py-1 text-slate-600">
+                                    <span><i class="fa-solid fa-circle text-[#64748b] mr-1.5 text-[8px]"></i>HOA Dues</span>
+                                    <strong id="mort-break-hoa" class="text-slate-900">$0</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amortization Table -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                <h4 class="text-sm font-bold text-slate-900 mb-3">Annual Amortization Schedule</h4>
+                <div class="overflow-x-auto max-h-64 custom-scrollbar border border-slate-200 rounded-xl">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 text-slate-600 font-bold sticky top-0 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Year</th>
+                                <th class="p-3">Principal Paid</th>
+                                <th class="p-3">Interest Paid</th>
+                                <th class="p-3">Total Paid</th>
+                                <th class="p-3">Ending Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mort-table-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- 2. US INCOME TAX & PAYROLL CALCULATOR -->
+        <!-- ============================================================== -->
+        <section id="calc-tax" class="calc-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-blue-600"></i> US Federal & State Income Tax & FICA Calculator
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Calculates IRS Federal brackets, FICA (Social Security 6.2% wage cap $168,600 + Medicare 1.45% + 0.9% high-earner surcharge), and State Tax.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 border-b pb-2">Tax Parameters</h3>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Annual Gross Income ($)</label>
+                        <input type="number" id="tax-in-gross" value="105000" step="1000" oninput="calcTax()" class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm font-bold outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Filing Status</label>
+                        <select id="tax-in-status" onchange="calcTax()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white outline-none">
+                            <option value="single">Single</option>
+                            <option value="mfj">Married Filing Jointly</option>
+                            <option value="hoh">Head of Household</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Pre-Tax 401(k) ($/yr)</label>
+                            <input type="number" id="tax-in-401k" value="6500" max="23000" step="500" oninput="calcTax()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                            <span class="text-[10px] text-slate-400">Max $23,000</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">State Tax Rate (%)</label>
+                            <input type="number" id="tax-in-state-rate" value="5.5" step="0.1" oninput="calcTax()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                            <span class="text-[10px] text-slate-400">0% for TX, FL, WA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Net Take-Home Pay</span>
+                            <span id="tax-res-takehome" class="text-2xl font-black text-calcgreen-600 block mt-1">$0</span>
+                            <span id="tax-res-takehome-pct" class="text-[11px] text-slate-400">0% of gross</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Tax Liability</span>
+                            <span id="tax-res-totaltax" class="text-2xl font-black text-rose-600 block mt-1">$0</span>
+                            <span id="tax-res-effrate" class="text-[11px] text-slate-400">Effective: 0%</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Top Marginal Bracket</span>
+                            <span id="tax-res-bracket" class="text-2xl font-black text-slate-800 block mt-1">0%</span>
+                            <span class="text-[11px] text-slate-400">Federal Bracket</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                        <h4 class="text-sm font-bold text-slate-900 mb-3">Paycheck Cadence & Tax Breakdown</h4>
+                        <div class="grid grid-cols-3 gap-3 text-center mb-4">
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[11px] text-slate-500 block">Annual Net</span>
+                                <strong id="tax-cadence-annual" class="text-sm font-bold text-slate-900">$0</strong>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[11px] text-slate-500 block">Monthly Net</span>
+                                <strong id="tax-cadence-monthly" class="text-sm font-bold text-calcgreen-600">$0</strong>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[11px] text-slate-500 block">Bi-Weekly Net</span>
+                                <strong id="tax-cadence-biweekly" class="text-sm font-bold text-blue-600">$0</strong>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-xs border-t pt-3">
+                            <div class="flex justify-between py-1 border-b">
+                                <span class="text-slate-600">Federal Income Tax</span>
+                                <strong id="tax-break-fed" class="text-slate-800">$0</strong>
+                            </div>
+                            <div class="flex justify-between py-1 border-b">
+                                <span class="text-slate-600">FICA: Social Security (6.2% up to $168.6k)</span>
+                                <strong id="tax-break-ss" class="text-slate-800">$0</strong>
+                            </div>
+                            <div class="flex justify-between py-1 border-b">
+                                <span class="text-slate-600">FICA: Medicare (1.45% + 0.9% over $200k)</span>
+                                <strong id="tax-break-med" class="text-slate-800">$0</strong>
+                            </div>
+                            <div class="flex justify-between py-1 border-b">
+                                <span class="text-slate-600">State Income Tax</span>
+                                <strong id="tax-break-state" class="text-slate-800">$0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- 3. AUTO LOAN CALCULATOR -->
+        <!-- ============================================================== -->
+        <section id="calc-auto" class="calc-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-car text-calcgreen-600"></i> US Auto Loan & Trade-In Calculator
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Calculates monthly car payment with state sales tax, dealer doc fees, title fees, and trade-in sales tax credit.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 border-b pb-2">Vehicle Purchase Details</h3>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle Price ($)</label>
+                        <input type="number" id="auto-in-price" value="36000" step="500" oninput="calcAuto()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Down Payment ($)</label>
+                            <input type="number" id="auto-in-dp" value="5000" step="250" oninput="calcAuto()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Trade-In Allowance ($)</label>
+                            <input type="number" id="auto-in-trade" value="4000" step="250" oninput="calcAuto()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 pt-2 border-t">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Sales Tax (%)</label>
+                            <input type="number" id="auto-in-tax-rate" value="7.0" step="0.1" oninput="calcAuto()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Dealer Doc Fee ($)</label>
+                            <input type="number" id="auto-in-fees" value="595" step="50" oninput="calcAuto()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Title & Reg ($)</label>
+                            <input type="number" id="auto-in-reg" value="325" step="25" oninput="calcAuto()" class="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-xs">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Interest Rate (APR %)</label>
+                            <input type="number" id="auto-in-rate" value="5.9" step="0.1" oninput="calcAuto()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Term</label>
+                            <select id="auto-in-term" onchange="calcAuto()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white outline-none">
+                                <option value="36">36 Months</option>
+                                <option value="48">48 Months</option>
+                                <option value="60" selected>60 Months (5 Yrs)</option>
+                                <option value="72">72 Months</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Monthly Car Payment</span>
+                            <span id="auto-res-monthly" class="text-2xl font-black text-calcgreen-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Total per month</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Financed</span>
+                            <span id="auto-res-principal" class="text-2xl font-black text-slate-800 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Loan principal</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Loan Interest</span>
+                            <span id="auto-res-interest" class="text-2xl font-black text-rose-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Finance charge</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- 4. 401(K) & INVESTMENT CALCULATOR -->
+        <!-- ============================================================== -->
+        <section id="calc-investment" class="calc-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-blue-600"></i> US 401(k) / IRA Wealth Growth Engine
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Compound interest simulation with employer matching rules and inflation adjustment.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 border-b pb-2">Investment Inputs</h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Starting Balance ($)</label>
+                            <input type="number" id="inv-in-balance" value="35000" step="1000" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Annual Salary ($)</label>
+                            <input type="number" id="inv-in-salary" value="90000" step="1000" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Your Contrib (%)</label>
+                            <input type="number" id="inv-in-contrib" value="9" min="0" max="100" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Employer Match (%)</label>
+                            <input type="number" id="inv-in-match" value="50" min="0" max="100" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Match Cap (% salary)</label>
+                            <input type="number" id="inv-in-cap" value="6" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Years to Invest</label>
+                            <input type="number" id="inv-in-years" value="25" min="1" max="50" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Expected Return (%/yr)</label>
+                        <input type="number" id="inv-in-return" value="8.0" step="0.5" oninput="calcInvestment()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Projected Balance</span>
+                            <span id="inv-res-balance" class="text-2xl font-black text-calcgreen-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Future portfolio value</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Invested</span>
+                            <span id="inv-res-invested" class="text-2xl font-black text-slate-800 block mt-1">$0</span>
+                            <span id="inv-res-match" class="text-[11px] text-calcgreen-600">Match: $0</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm printable-card">
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Compound Growth</span>
+                            <span id="inv-res-growth" class="text-2xl font-black text-blue-600 block mt-1">$0</span>
+                            <span class="text-[11px] text-slate-400">Pure interest</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- 5. HEALTH: BMI CALCULATOR -->
+        <!-- ============================================================== -->
+        <section id="calc-bmi" class="calc-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-weight-scale text-blue-600"></i> US Imperial BMI Calculator
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Calculate your Body Mass Index using US Imperial units (Feet, Inches, Pounds) with official CDC classifications.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-900 border-b pb-2">Body Dimensions</h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Height (Feet)</label>
+                            <input type="number" id="bmi-in-feet" value="5" min="3" max="7" oninput="calcBmi()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Height (Inches)</label>
+                            <input type="number" id="bmi-in-inches" value="10" min="0" max="11" oninput="calcBmi()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Weight (Pounds / lbs)</label>
+                        <input type="number" id="bmi-in-weight" value="165" min="50" max="600" oninput="calcBmi()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Your BMI Score</span>
+                    <span id="bmi-res-score" class="text-5xl font-black text-slate-900 block my-2">23.7</span>
+                    <span id="bmi-res-category" class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        Normal weight
+                    </span>
+                    <p id="bmi-res-range" class="text-xs text-slate-500 mt-4">
+                        Healthy weight for 5&apos;10&quot; is between 129 lbs and 173 lbs.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- 6. MATH: TIP & SALES TAX -->
+        <!-- ============================================================== -->
+        <section id="calc-tip" class="calc-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-amber-600"></i> US Tip & State Sales Tax Splitter
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Calculate standard gratuity rates, add state sales tax, and split evenly among party members.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Check Subtotal ($)</label>
+                        <input type="number" id="tip-in-bill" value="95" oninput="calcTip()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-bold outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tip (%)</label>
+                            <input type="number" id="tip-in-pct" value="18" oninput="calcTip()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sales Tax (%)</label>
+                            <input type="number" id="tip-in-tax" value="8.875" step="0.1" oninput="calcTip()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Split Between</label>
+                        <input type="number" id="tip-in-split" value="2" min="1" max="50" oninput="calcTip()" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200">
+                            <span class="text-xs text-amber-700 font-bold block uppercase">Per Person</span>
+                            <span id="tip-res-person" class="text-3xl font-black text-amber-900 block mt-1">$0.00</span>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                            <span class="text-xs text-slate-500 font-bold block uppercase">Grand Total</span>
+                            <span id="tip-res-total" class="text-3xl font-black text-slate-900 block mt-1">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p>Calculator.net USA Edition &copy; 2026. Built with precision formulas for US Mortgage, IRS Tax, FICA, Auto Lending, CDC BMI, and 401(k) rules.</p>
+            <p class="text-[11px] text-slate-400">Disclaimer: For estimation purposes only. Consult licensed professionals (CPAs, mortgage brokers) for binding financial transactions.</p>
+        </div>
+    </footer>
+
+    <!-- Comprehensive JavaScript Logic & Formulas -->
+    <script>
+        let mortChartInstance = null;
+
+        // Switch Major Category
+        function switchCategory(cat) {
+            document.querySelectorAll('.cat-tab').forEach(b => {
+                b.classList.remove('border-calcgreen-600', 'text-calcgreen-700', 'bg-calcgreen-50');
+                b.classList.add('border-transparent', 'text-slate-600');
+            });
+            const activeTab = document.getElementById('cat-tab-' + cat);
+            if (activeTab) {
+                activeTab.classList.add('border-calcgreen-600', 'text-calcgreen-700', 'bg-calcgreen-50');
+                activeTab.classList.remove('border-transparent', 'text-slate-600');
+            }
+
+            document.getElementById('subnav-financial').classList.add('hidden');
+            document.getElementById('subnav-health').classList.add('hidden');
+            document.getElementById('subnav-math').classList.add('hidden');
+
+            const subnav = document.getElementById('subnav-' + cat);
+            if (subnav) subnav.classList.remove('hidden');
+
+            if (cat === 'financial') switchCalc('mortgage');
+            if (cat === 'health') switchCalc('bmi');
+            if (cat === 'math') switchCalc('tip');
+        }
+
+        // Switch Sub-Calculator
+        function switchCalc(calcId) {
+            document.querySelectorAll('.calc-section').forEach(s => s.classList.add('hidden'));
+            const sec = document.getElementById('calc-' + calcId);
+            if (sec) sec.classList.remove('hidden');
+
+            document.querySelectorAll('.sub-btn').forEach(b => {
+                b.classList.remove('bg-calcgreen-600', 'bg-blue-600', 'bg-amber-600', 'text-white', 'shadow-xs');
+                b.classList.add('bg-slate-100', 'text-slate-700');
+            });
+
+            const activeBtn = document.getElementById('sub-' + calcId);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+                if (calcId === 'mortgage' || calcId === 'tax' || calcId === 'auto' || calcId === 'investment') {
+                    activeBtn.classList.add('bg-calcgreen-600', 'text-white', 'shadow-xs');
+                } else if (calcId === 'bmi' || calcId === 'bmr' || calcId === 'bodyfat') {
+                    activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-xs');
+                } else {
+                    activeBtn.classList.add('bg-amber-600', 'text-white', 'shadow-xs');
+                }
+            }
+
+            // Recalculate on switch
+            if (calcId === 'mortgage') calcMortgage();
+            if (calcId === 'tax') calcTax();
+            if (calcId === 'auto') calcAuto();
+            if (calcId === 'investment') calcInvestment();
+            if (calcId === 'bmi') calcBmi();
+            if (calcId === 'tip') calcTip();
+        }
+
+        // Format Currency Helper
+        function fmt(n, decimals = 0) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: decimals
+            }).format(n);
+        }
+
+        // -------------------------------------------------------------
+        // 1. MORTGAGE CALCULATOR LOGIC
+        // -------------------------------------------------------------
+        function syncMortPrice(type) {
+            const slider = document.getElementById('mort-slider-price');
+            const num = document.getElementById('mort-in-price');
+            if (type === 'slider') num.value = slider.value;
+            else slider.value = num.value;
+            document.getElementById('mort-disp-price').textContent = fmt(parseFloat(num.value) || 0);
+            syncMortDpPct();
+        }
+
+        function syncMortDpAmt() {
+            const price = parseFloat(document.getElementById('mort-in-price').value) || 0;
+            const amt = parseFloat(document.getElementById('mort-in-dp-amt').value) || 0;
+            if (price > 0) {
+                document.getElementById('mort-in-dp-pct').value = ((amt / price) * 100).toFixed(1);
+            }
+            calcMortgage();
+        }
+
+        function syncMortDpPct() {
+            const price = parseFloat(document.getElementById('mort-in-price').value) || 0;
+            const pct = parseFloat(document.getElementById('mort-in-dp-pct').value) || 0;
+            document.getElementById('mort-in-dp-amt').value = Math.round(price * (pct / 100));
+            calcMortgage();
+        }
+
+        let mortScheduleData = [];
+
+        function calcMortgage() {
+            const price = parseFloat(document.getElementById('mort-in-price').value) || 0;
+            const down = parseFloat(document.getElementById('mort-in-dp-amt').value) || 0;
+            const rate = parseFloat(document.getElementById('mort-in-rate').value) || 0;
+            const term = parseInt(document.getElementById('mort-in-term').value) || 30;
+            const taxRate = parseFloat(document.getElementById('mort-in-tax-rate').value) || 0;
+            const insAnnual = parseFloat(document.getElementById('mort-in-ins').value) || 0;
+            const hoaMonthly = parseFloat(document.getElementById('mort-in-hoa').value) || 0;
+
+            const loanAmt = Math.max(0, price - down);
+            const r = (rate / 100) / 12;
+            const n = term * 12;
+
+            let pi = 0;
+            if (r > 0 && n > 0) {
+                pi = (loanAmt * (r * Math.pow(1 + r, n))) / (Math.pow(1 + r, n) - 1);
+            } else if (n > 0) {
+                pi = loanAmt / n;
+            }
+
+            const monthlyTaxes = (price * (taxRate / 100)) / 12;
+            const monthlyIns = insAnnual / 12;
+
+            // US PMI rule: down payment < 20%
+            const ltv = price > 0 ? (loanAmt / price) * 100 : 0;
+            const isPmi = ltv > 80;
+            const monthlyPmi = isPmi ? (loanAmt * 0.0085) / 12 : 0;
+
+            const pmiAlert = document.getElementById('mort-pmi-alert');
+            const rowPmi = document.getElementById('mort-row-pmi');
+            if (isPmi) {
+                pmiAlert.classList.remove('hidden');
+                rowPmi.classList.remove('hidden');
+            } else {
+                pmiAlert.classList.add('hidden');
+                rowPmi.classList.add('hidden');
+            }
+
+            const totalMonthly = pi + monthlyTaxes + monthlyIns + monthlyPmi + hoaMonthly;
+            const totalInterest = Math.max(0, (pi * n) - loanAmt);
+
+            document.getElementById('mort-res-monthly').textContent = fmt(totalMonthly);
+            document.getElementById('mort-res-loan-amt').textContent = fmt(loanAmt);
+            document.getElementById('mort-res-ltv').textContent = 'LTV: ' + ltv.toFixed(1) + '%';
+            document.getElementById('mort-res-total-interest').textContent = fmt(totalInterest);
+
+            document.getElementById('mort-break-pi').textContent = fmt(pi);
+            document.getElementById('mort-break-taxes').textContent = fmt(monthlyTaxes);
+            document.getElementById('mort-break-ins').textContent = fmt(monthlyIns);
+            document.getElementById('mort-break-pmi').textContent = fmt(monthlyPmi);
+            document.getElementById('mort-break-hoa').textContent = fmt(hoaMonthly);
+
+            // Generate Amortization Table
+            let bal = loanAmt;
+            const tbody = document.getElementById('mort-table-body');
+            tbody.innerHTML = '';
+            mortScheduleData = [];
+
+            for (let y = 1; y <= term; y++) {
+                let yPrin = 0;
+                let yInt = 0;
+                for (let m = 1; m <= 12; m++) {
+                    if (bal <= 0) break;
+                    const mInt = bal * r;
+                    const mPrin = Math.min(bal, pi - mInt);
+                    yInt += mInt;
+                    yPrin += mPrin;
+                    bal -= mPrin;
+                }
+                mortScheduleData.push({ year: y, principal: yPrin, interest: yInt, balance: Math.max(0, bal) });
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50';
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-800">Year ${y}</td>
+                    <td class="p-3 text-emerald-600 font-semibold">${fmt(yPrin)}</td>
+                    <td class="p-3 text-rose-600 font-semibold">${fmt(yInt)}</td>
+                    <td class="p-3 text-slate-800">${fmt(yPrin + yInt)}</td>
+                    <td class="p-3 font-bold text-slate-900">${fmt(Math.max(0, bal))}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            // Render Chart.js Donut
+            renderMortgageChart(pi, monthlyTaxes, monthlyIns, monthlyPmi, hoaMonthly);
+        }
+
+        function renderMortgageChart(pi, taxes, ins, pmi, hoa) {
+            const ctx = document.getElementById('chart-mortgage-donut');
+            if (!ctx) return;
+            if (mortChartInstance) mortChartInstance.destroy();
+
+            mortChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['P & I', 'Property Tax', 'Home Insurance', 'PMI', 'HOA'],
+                    datasets: [{
+                        data: [pi, taxes, ins, pmi, hoa],
+                        backgroundColor: ['#059669', '#2563eb', '#d97706', '#dc2626', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        function exportMortgageCsv() {
+            let csv = 'Year,Principal Paid,Interest Paid,Total Paid,Ending Balance\n';
+            mortScheduleData.forEach(r => {
+                csv += `${r.year},${r.principal.toFixed(2)},${r.interest.toFixed(2)},${(r.principal + r.interest).toFixed(2)},${r.balance.toFixed(2)}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mortgage_amortization.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // -------------------------------------------------------------
+        // 2. US TAX & PAYROLL LOGIC
+        // -------------------------------------------------------------
+        function calcTax() {
+            const gross = parseFloat(document.getElementById('tax-in-gross').value) || 0;
+            const status = document.getElementById('tax-in-status').value;
+            const pretax = Math.min(parseFloat(document.getElementById('tax-in-401k').value) || 0, 23000);
+            const stateRate = parseFloat(document.getElementById('tax-in-state-rate').value) || 0;
+
+            let std = 14600;
+            if (status === 'mfj') std = 29200;
+            if (status === 'hoh') std = 21900;
+
+            const ssLimit = 168600;
+            const ssTax = Math.min(gross, ssLimit) * 0.062;
+            const addThreshold = status === 'mfj' ? 250000 : 200000;
+            const medTax = (gross * 0.0145) + (Math.max(0, gross - addThreshold) * 0.009);
+            const fica = ssTax + medTax;
+
+            const taxableFed = Math.max(0, gross - pretax - std);
+
+            let brackets = [
+                { limit: 11600, rate: 0.10 },
+                { limit: 47150, rate: 0.12 },
+                { limit: 100525, rate: 0.22 },
+                { limit: 191950, rate: 0.24 },
+                { limit: 243725, rate: 0.32 },
+                { limit: 609350, rate: 0.35 },
+                { limit: Infinity, rate: 0.37 }
+            ];
+            if (status === 'mfj') {
+                brackets = [
+                    { limit: 23200, rate: 0.10 },
+                    { limit: 94300, rate: 0.12 },
+                    { limit: 201050, rate: 0.22 },
+                    { limit: 383900, rate: 0.24 },
+                    { limit: 487450, rate: 0.32 },
+                    { limit: 731200, rate: 0.35 },
+                    { limit: Infinity, rate: 0.37 }
+                ];
+            }
+
+            let fedTax = 0;
+            let prev = 0;
+            let marginal = 0;
+            for (let b of brackets) {
+                if (taxableFed > prev) {
+                    fedTax += Math.min(taxableFed - prev, b.limit - prev) * b.rate;
+                    marginal = b.rate;
+                    prev = b.limit;
+                } else break;
+            }
+
+            const stateTax = taxableFed * (stateRate / 100);
+            const totalTax = fedTax + fica + stateTax;
+            const takeHome = Math.max(0, gross - totalTax - pretax);
+
+            document.getElementById('tax-res-takehome').textContent = fmt(takeHome);
+            document.getElementById('tax-res-takehome-pct').textContent = gross > 0 ? ((takeHome / gross) * 100).toFixed(1) + '% of gross' : '0%';
+            document.getElementById('tax-res-totaltax').textContent = fmt(totalTax);
+            document.getElementById('tax-res-effrate').textContent = 'Effective: ' + (gross > 0 ? ((totalTax / gross) * 100).toFixed(1) : 0) + '%';
+            document.getElementById('tax-res-bracket').textContent = (marginal * 100).toFixed(0) + '%';
+
+            document.getElementById('tax-cadence-annual').textContent = fmt(takeHome);
+            document.getElementById('tax-cadence-monthly').textContent = fmt(takeHome / 12);
+            document.getElementById('tax-cadence-biweekly').textContent = fmt(takeHome / 26);
+
+            document.getElementById('tax-break-fed').textContent = fmt(fedTax);
+            document.getElementById('tax-break-ss').textContent = fmt(ssTax);
+            document.getElementById('tax-break-med').textContent = fmt(medTax);
+            document.getElementById('tax-break-state').textContent = fmt(stateTax);
+        }
+
+        // -------------------------------------------------------------
+        // 3. AUTO LOAN LOGIC
+        // -------------------------------------------------------------
+        function calcAuto() {
+            const price = parseFloat(document.getElementById('auto-in-price').value) || 0;
+            const down = parseFloat(document.getElementById('auto-in-dp').value) || 0;
+            const trade = parseFloat(document.getElementById('auto-in-trade').value) || 0;
+            const taxRate = parseFloat(document.getElementById('auto-in-tax-rate').value) || 0;
+            const fees = parseFloat(document.getElementById('auto-in-fees').value) || 0;
+            const reg = parseFloat(document.getElementById('auto-in-reg').value) || 0;
+            const apr = parseFloat(document.getElementById('auto-in-rate').value) || 0;
+            const term = parseInt(document.getElementById('auto-in-term').value) || 60;
+
+            const salesTax = Math.max(0, price - trade) * (taxRate / 100);
+            const loan = Math.max(0, (price + salesTax + fees + reg) - (down + trade));
+
+            const r = (apr / 100) / 12;
+            let m = 0;
+            if (r > 0) m = (loan * (r * Math.pow(1 + r, term))) / (Math.pow(1 + r, term) - 1);
+            else m = loan / term;
+
+            const totalInterest = Math.max(0, (m * term) - loan);
+
+            document.getElementById('auto-res-monthly').textContent = fmt(m);
+            document.getElementById('auto-res-principal').textContent = fmt(loan);
+            document.getElementById('auto-res-interest').textContent = fmt(totalInterest);
+        }
+
+        // -------------------------------------------------------------
+        // 4. INVESTMENT / 401(K) LOGIC
+        // -------------------------------------------------------------
+        function calcInvestment() {
+            const bal = parseFloat(document.getElementById('inv-in-balance').value) || 0;
+            const salary = parseFloat(document.getElementById('inv-in-salary').value) || 0;
+            const contribPct = parseFloat(document.getElementById('inv-in-contrib').value) || 0;
+            const matchPct = parseFloat(document.getElementById('inv-in-match').value) || 0;
+            const cap = parseFloat(document.getElementById('inv-in-cap').value) || 0;
+            const years = parseInt(document.getElementById('inv-in-years').value) || 25;
+            const ret = (parseFloat(document.getElementById('inv-in-return').value) || 0) / 100;
+
+            const userContrib = salary * (contribPct / 100);
+            const employerMatch = salary * (Math.min(contribPct, cap) / 100) * (matchPct / 100);
+
+            let current = bal;
+            let invested = bal;
+            let matchTotal = 0;
+
+            for (let y = 1; y <= years; y++) {
+                current = (current + userContrib + employerMatch) * (1 + ret);
+                invested += userContrib + employerMatch;
+                matchTotal += employerMatch;
+            }
+
+            document.getElementById('inv-res-balance').textContent = fmt(current);
+            document.getElementById('inv-res-invested').textContent = fmt(invested);
+            document.getElementById('inv-res-match').textContent = 'Match: ' + fmt(matchTotal);
+            document.getElementById('inv-res-growth').textContent = fmt(Math.max(0, current - invested));
+        }
+
+        // -------------------------------------------------------------
+        // 5. BMI LOGIC
+        // -------------------------------------------------------------
+        function calcBmi() {
+            const feet = parseInt(document.getElementById('bmi-in-feet').value) || 0;
+            const inches = parseInt(document.getElementById('bmi-in-inches').value) || 0;
+            const lbs = parseFloat(document.getElementById('bmi-in-weight').value) || 0;
+
+            const totalInches = (feet * 12) + inches;
+            if (totalInches <= 0 || lbs <= 0) return;
+
+            const bmi = (703 * lbs) / (totalInches * totalInches);
+            document.getElementById('bmi-res-score').textContent = bmi.toFixed(1);
+
+            const badge = document.getElementById('bmi-res-category');
+            if (bmi < 18.5) {
+                badge.textContent = 'Underweight';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-300';
+            } else if (bmi < 25) {
+                badge.textContent = 'Normal weight (Healthy)';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+            } else if (bmi < 30) {
+                badge.textContent = 'Overweight';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+            } else {
+                badge.textContent = 'Obese';
+                badge.className = 'inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+            }
+
+            const minLbs = Math.round((18.5 * totalInches * totalInches) / 703);
+            const maxLbs = Math.round((24.9 * totalInches * totalInches) / 703);
+            document.getElementById('bmi-res-range').textContent = `Healthy weight for ${feet}'${inches}" is between ${minLbs} lbs and ${maxLbs} lbs.`;
+        }
+
+        // -------------------------------------------------------------
+        // 6. TIP LOGIC
+        // -------------------------------------------------------------
+        function calcTip() {
+            const bill = parseFloat(document.getElementById('tip-in-bill').value) || 0;
+            const tipPct = parseFloat(document.getElementById('tip-in-pct').value) || 0;
+            const taxPct = parseFloat(document.getElementById('tip-in-tax').value) || 0;
+            const split = Math.max(1, parseInt(document.getElementById('tip-in-split').value) || 1);
+
+            const tax = bill * (taxPct / 100);
+            const tip = bill * (tipPct / 100);
+            const total = bill + tax + tip;
+            const perPerson = total / split;
+
+            document.getElementById('tip-res-person').textContent = fmt(perPerson, 2);
+            document.getElementById('tip-res-total').textContent = fmt(total, 2);
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            calcMortgage();
+        });
+    </script>
+</body>
+</html>
